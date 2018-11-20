@@ -1,6 +1,12 @@
-class Recipe < ApplicationRecord
+class Recipe
+    include Mongoid::Document
 
-    has_many :ingredients, foreign_key: "item_id", class_name: "Item"
-    has_many :products, foreign_key: "item_id", class_name, "Item"
+    field :name, type: String
+    field :energy, type: Integer
+    embeds_many :ingredients, class_name: "Item"
+    embeds_many :products, class_name: "Item"
     
+
+
+
 end

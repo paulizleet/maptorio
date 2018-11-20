@@ -9,11 +9,21 @@ require "json"
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
-# run our lua script in shell
-`lua factorio/get_recipes.lua`
+# run our lua scripts in shell
+`cd factorio && lua get_items.lua`
 
-f = open("recipes.json").read
+`cd factorio && lua get_recipes.lua`
 
-j = JSON.parse(f)
+f = open("items.json").read
 
-p j.first
+j = JSON.parse(f).to_h
+
+j.each_pair do |key, list_item|
+
+    @item = Item.new(
+        name: list_item["name"],
+        icon: list_item["icon"],
+        subgroup: list_item["subgroup"]
+    )
+    @item.save
+end
