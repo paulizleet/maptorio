@@ -20,5 +20,8 @@
 # Ignore Byebug command history file.
 .byebug_history
 
-/factorio
+
 recipes.json
+items.json
+
+factorio/*
