@@ -1,4 +1,9 @@
-class Product < ApplicationRecord
-    has_and_belongs_to_many :items
+class Product
+    include Mongoid::Document
+
     belongs_to :recipe
+
+    has_one :item
+
+    field :quantity, type: Integer
 end

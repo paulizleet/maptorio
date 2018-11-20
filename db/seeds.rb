@@ -27,3 +27,33 @@ j.each_pair do |key, list_item|
     )
     @item.save
 end
+
+
+f = open("recipes.json").read
+j = JSON.parse(f).to_h
+j.each_pair do |key, list_item|
+
+
+    @recipe = Recipe.new(
+        name: list_item["name"],
+        icon: list_item["icon"],
+        energy: list_item["energy_required"],
+        category: list_item["category"],
+        subgroup: list_item["subgroup"]
+    )
+
+    
+    @recipe.add_ingredients(list_item)
+    products = []
+    if list_item["results"].nil?
+        products = [[list_item["result"], list_item["result_count"].nil? ? 1 : list_item["result_count"]]]
+    else
+        products = list_item["results"]
+    end
+    @recipe.add_products(products)
+    @recipe.save
+end
+
+puts Recipe.first
+puts Ingredient.first
+puts Item.first
