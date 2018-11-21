@@ -1,7 +1,7 @@
 class Product
     include Mongoid::Document
 
-    belongs_to :recipe
+    embedded_in :recipe
 
     has_one :item
 

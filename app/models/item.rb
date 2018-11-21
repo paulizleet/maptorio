@@ -6,6 +6,6 @@ class Item
     field :icon, type: String
     field :subgroup, type: String
     
-    belongs_to :modpack
+    embedded_in :modsuite
 
 end

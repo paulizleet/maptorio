@@ -3,15 +3,16 @@ require 'pry'
 class Recipe
     include Mongoid::Document
 
-    belongs_to :modpack
 
     field :name, type: String
     field :energy
     field :category, type: String
     field :subgroup, type: String
     field :icon, type: String
-    has_many :ingredients
-    has_many :products
+
+    embedded_in :modsuite
+    embeds_many :ingredients
+    embeds_many :products
     
 
     def add_ingredients(item)

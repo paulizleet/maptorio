@@ -8,10 +8,8 @@ class Modsuite
 
   field :name, type: String
   field :description, type: String
-  has_many :modpacks
-
-  has_many :items, through: :modpacks
-  has_many :recipes, through: :modpacks
+  embeds_many :items
+  embeds_many :recipes
 
 
 end

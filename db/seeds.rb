@@ -13,7 +13,7 @@ require "json"
 #for each suite of mods
     @modsuite = Modsuite.new(name: "Vanilla", description: "Factorio recipes without any mods")
     #for each zipfile
-        @modpack = @modsuite.modpacks.new(name: "base")
+        
         # run our lua scripts in shell
 
         `cd factorio && lua get_items.lua`
@@ -26,7 +26,7 @@ require "json"
 
         j.each_pair do |key, list_item|
 
-            @item = @modpack.items.new(
+            @item = @modsuite.items.new(
                 name: list_item["name"],
                 icon: list_item["icon"],
                 subgroup: list_item["subgroup"]
@@ -40,7 +40,7 @@ require "json"
         j.each_pair do |key, list_item|
 
 
-            @recipe = @modpack.recipes.new(
+            @recipe = @modsuite.recipes.new(
                 name: list_item["name"],
                 icon: list_item["icon"],
                 energy: list_item["energy_required"],
@@ -59,9 +59,6 @@ require "json"
             @recipe.add_products(products)
             @recipe.save
         end
-        @modpack.save
         @modsuite.save
 
-puts Recipe.first
-puts Ingredient.first
-puts Item.first
+puts Modsuite.first
