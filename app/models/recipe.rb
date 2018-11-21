@@ -3,6 +3,8 @@ require 'pry'
 class Recipe
     include Mongoid::Document
 
+    belongs_to :modpack
+
     field :name, type: String
     field :energy
     field :category, type: String

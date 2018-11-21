@@ -9,50 +9,58 @@ require "json"
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
-# run our lua scripts in shell
-`cd factorio && lua get_items.lua`
 
-`cd factorio && lua get_recipes.lua`
+#for each suite of mods
+    @modsuite = Modsuite.new(name: "Vanilla", description: "Factorio recipes without any mods")
+    #for each zipfile
+        @modpack = @modsuite.modpacks.new(name: "base")
+        # run our lua scripts in shell
 
-f = open("items.json").read
+        `cd factorio && lua get_items.lua`
 
-j = JSON.parse(f).to_h
+        `cd factorio && lua get_recipes.lua`
 
-j.each_pair do |key, list_item|
+        f = open("items.json").read
 
-    @item = Item.new(
-        name: list_item["name"],
-        icon: list_item["icon"],
-        subgroup: list_item["subgroup"]
-    )
-    @item.save
-end
+        j = JSON.parse(f).to_h
+
+        j.each_pair do |key, list_item|
+
+            @item = @modpack.items.new(
+                name: list_item["name"],
+                icon: list_item["icon"],
+                subgroup: list_item["subgroup"]
+            )
+            @item.save
+        end
 
 
-f = open("recipes.json").read
-j = JSON.parse(f).to_h
-j.each_pair do |key, list_item|
+        f = open("recipes.json").read
+        j = JSON.parse(f).to_h
+        j.each_pair do |key, list_item|
 
 
-    @recipe = Recipe.new(
-        name: list_item["name"],
-        icon: list_item["icon"],
-        energy: list_item["energy_required"],
-        category: list_item["category"],
-        subgroup: list_item["subgroup"]
-    )
+            @recipe = @modpack.recipes.new(
+                name: list_item["name"],
+                icon: list_item["icon"],
+                energy: list_item["energy_required"],
+                category: list_item["category"],
+                subgroup: list_item["subgroup"]
+            )
 
-    
-    @recipe.add_ingredients(list_item)
-    products = []
-    if list_item["results"].nil?
-        products = [[list_item["result"], list_item["result_count"].nil? ? 1 : list_item["result_count"]]]
-    else
-        products = list_item["results"]
-    end
-    @recipe.add_products(products)
-    @recipe.save
-end
+            
+            @recipe.add_ingredients(list_item)
+            products = []
+            if list_item["results"].nil?
+                products = [[list_item["result"], list_item["result_count"].nil? ? 1 : list_item["result_count"]]]
+            else
+                products = list_item["results"]
+            end
+            @recipe.add_products(products)
+            @recipe.save
+        end
+        @modpack.save
+        @modsuite.save
 
 puts Recipe.first
 puts Ingredient.first
