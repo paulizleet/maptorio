@@ -1,0 +1,12 @@
+
+<table class='table'>
+    <tbody>
+    <% @suites.each do |s| %>
+        <tr>
+        <td><%=link_to(s.name, s)%></td>
+        <td><%= s.description %></td>
+        </tr>
+        
+    <%end%>
+    </tbody>
+</table>

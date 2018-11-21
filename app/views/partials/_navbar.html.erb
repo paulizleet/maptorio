@@ -1,0 +1,15 @@
+<nav class="navbar navbar-light bg-light">
+
+    <% if @title_addon.nil? %>
+        <a class="navbar-brand" href="#">Maptorio</a>
+    <% else %>
+        <a class="navbar-brand" href="#">Maptorio - <%=@title_addon%></a>
+    <%end%>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <a class="nav-item nav-link active" href="#">Modpack List<span class="sr-only">(current)</span></a>
+        <a class="nav-item nav-link" href="#">Features</a>
+        <a class="nav-item nav-link" href="#">Pricing</a>
+        <a class="nav-item nav-link disabled" href="#">Disabled</a>
+    </div>
+</nav>

@@ -1,0 +1,2 @@
+class ModpackController < ApplicationController
+end
