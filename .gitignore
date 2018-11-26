@@ -20,9 +20,12 @@
 # Ignore Byebug command history file.
 .byebug_history
 
+/node_modules
 
 recipes.json
 items.json
 
 factorio/*
 recipes.json
+Modsuite.json
+misc/graphs/*
