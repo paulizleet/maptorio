@@ -2,6 +2,9 @@ class ModsuitesController < ApplicationController
     
     def show
         @modsuite = Modsuite.find(params[:id])
+
+        #@graph = 
+
         @title_addon = @modsuite.name
 
         render :show
@@ -13,7 +16,9 @@ class ModsuitesController < ApplicationController
         render :index
     end
 
+    def graph
+        p params
+        p "pengis"
 
-    
-
+    end
 end

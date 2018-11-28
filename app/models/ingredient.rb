@@ -1,9 +1,8 @@
 class Ingredient
     include Mongoid::Document
 
+    field :quantity, type: Integer
+    field :name, type: String
     embedded_in :recipe
 
-    has_one :item
-
-    field :quantity, type: Integer
 end
