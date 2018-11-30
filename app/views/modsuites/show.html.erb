@@ -1,6 +1,34 @@
 <!-- this is where the magic is going to happen -->
-<div id="secretcode" hidden=true ><%=@modsuite.id%></div>
+<%= hidden_field_tag :current_id, params[:id] %>
+<div id="cy"></div>
 
-<div classname="graph_anchor">
-<%=p @modsuite.name %>
-</div>
+<script>
+
+$(document).ready(function(){
+    $.ajax({
+        url: "/modsuites/" + $('#current_id').val()+"/graph",
+        method: "get",
+        success: function(graph){
+            var cy = cytoscape({
+                container: document.getElementById("#cy"), 
+                headless:false,
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            shape: 'hexagon',
+                            'background-color': 'red',
+                            label: 'data(id)'
+                        }
+                    }]
+                });
+            cy.json(JSON.parse(graph));
+            //var layout = cy.layout({name: 'preset'});
+            //layout.run();
+            console.log("cytoscape ran")
+        }
+    })
+})
+
+
+</script>

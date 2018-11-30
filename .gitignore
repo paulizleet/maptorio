@@ -25,7 +25,9 @@
 recipes.json
 items.json
 
-factorio/*
+/factorio/graphics
+/factorio/prototypes
+
 recipes.json
 Modsuite.json
 misc/graphs/*

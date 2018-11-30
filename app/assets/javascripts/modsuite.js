@@ -1,18 +1,25 @@
-$(document).ready(function(){
-    console.log("fuck")
-
+/*$(document).ready(function(){
     $.ajax({
-        url: "new",
-        method: "post",
-        text: "fuckfuck",//$('secretcode').contents(),
-            
-        success: function(grph){
-
-        var cy = cytoscape();
-        cy.json(JSON.parse(graph));
-        var layout = cy.layout();
-        layout.run();
-    }
-
-})
-})
+        url: "/modsuites/" + $('#current_id').val()+"/graph",
+        method: "get",
+        success: function(graph){
+            var cy = cytoscape({
+                container: $("#cy"), 
+                headless:false,
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            shape: 'hexagon',
+                            'background-color': 'red',
+                            label: 'data(id)'
+                        }
+                    }]
+                });
+            cy.json(JSON.parse(graph));
+            var layout = cy.layout({name: 'preset'});
+            layout.run();
+            console.log("cytoscape ran")
+        }
+    })
+})*/

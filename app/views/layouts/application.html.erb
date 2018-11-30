@@ -4,13 +4,8 @@
     <title>Maptorio</title>
     <%= csrf_meta_tags %>
 
-    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
-
-    <% if params["action"] == "show" %>
-      <%= javascript_include_tag 'https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.2.20/cytoscape.min.js' %>
-      <% end %>
-    
+    <%= stylesheet_link_tag    'application' %>
+    <%= javascript_include_tag 'application' %>
   </head>
 
   <body>
