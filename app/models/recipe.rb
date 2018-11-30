@@ -5,6 +5,7 @@ class Recipe
 
 
     field :name, type: String
+    field :expensive, type: Boolean
     field :energy
     field :category, type: String
     field :subgroup, type: String
@@ -13,45 +14,29 @@ class Recipe
     embedded_in :modsuite
     embeds_many :ingredients
     embeds_many :products
+
+    validates :name, presence: true
+    validates :energy, presence: true
+
     
 
-    def add_ingredients(item)
-        print(item)
-        if item["ingredients"]
-            add_list(item["ingredients"])
-        else
-
-            #keeping it simple for now
-            add_list(item["normal"])
-            #add_list("expensive", item["expensive"])
+    def add_ingredients(items)
+        items.each do |i|
+            @ingredient = self.ingredients.new(name: i[0], quantity: i[1])
+            @ingredient.save
         end
-        self.save
     end
     
 
 
     def add_products(prd)
-        prd.each do |pd|
-           # @item = Item.where(name: pd[0])
-            @product = self.products.new(name: pd[0], quantity: pd[1])
-            @product.save
-        end
-        self.save
-    end 
+        prd.each do |i|
+            self.save
 
-
-    def add_list(list)
-        begin
-            list.each do |ing|
-                ing = [ing["name"], ing["amount"]] if ing.class == "Hash"
-                #@item = Item.where(name: ing[0])
-                @ingredient = self.ingredients.new(name: ing[0], quantity: ing[1])
-                @ingredient.save
-            end
-        rescue
-            binding.pry
+            self.products.create(name: i[0], quantity: i[1])
         end
     end 
+
 
 
 end
