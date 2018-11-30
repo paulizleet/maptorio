@@ -20,8 +20,10 @@ class Recipe
         if item["ingredients"]
             add_list(item["ingredients"])
         else
+
+            #keeping it simple for now
             add_list(item["normal"])
-            add_list(item["expensive"])
+            #add_list("expensive", item["expensive"])
         end
         self.save
     end
