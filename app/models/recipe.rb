@@ -21,20 +21,23 @@ class Recipe
     
 
     def add_ingredients(items)
+        
         items.each do |i|
-            @ingredient = self.ingredients.new(name: i[0], quantity: i[1])
+            @ingredient = self.ingredients.new(name: i[:name], quantity: i[:quantity])
             @ingredient.save
         end
+        self.save
     end
     
 
 
     def add_products(prd)
         prd.each do |i|
-            self.save
-
-            self.products.create(name: i[0], quantity: i[1])
+            @product = self.products.new(name: i[:name], quantity: i[:quantity])
+            @product.save
         end
+        self.save
+
     end 
 
 

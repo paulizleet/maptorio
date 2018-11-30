@@ -1,5 +1,16 @@
 <!-- this is where the magic is going to happen -->
 <%= hidden_field_tag :current_id, params[:id] %>
+
+<style>
+    #cy {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+    }
+</style>
+
 <div id="cy"></div>
 
 <script>
@@ -9,8 +20,10 @@ $(document).ready(function(){
         url: "/modsuites/" + $('#current_id').val()+"/graph",
         method: "get",
         success: function(graph){
+            console.log("graph was got");
+
             var cy = cytoscape({
-                container: document.getElementById("#cy"), 
+                container: document.getElementById("cy"), 
                 headless:false,
                 style: [
                     {
@@ -23,8 +36,8 @@ $(document).ready(function(){
                     }]
                 });
             cy.json(JSON.parse(graph));
-            //var layout = cy.layout({name: 'preset'});
-            //layout.run();
+            var layout = cy.layout({name: 'grid'});
+            layout.run();
             console.log("cytoscape ran")
         }
     })

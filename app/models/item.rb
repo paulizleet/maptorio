@@ -10,4 +10,7 @@ class Item
     embedded_in :product
     embedded_in :modsuite
 
+    #validates :name, presence: true
+    
+
 end

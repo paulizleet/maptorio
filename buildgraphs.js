@@ -40,11 +40,15 @@ for(var i = 0, len=strings.length; i < len; i++){
     // Build Nodes and edges for each Recipe in the modpack
     for(var j = 0, jlen = js["recipes"].length;j < jlen; j++){
         recipe = js["recipes"][j]
-
+        cost = "normal";
+        if(recipe["expensive"] == true){
+            cost = "expensive"
+        }
         var new_node = cy.add([{
             group: "nodes",
             data:{
                 id: recipe["name"],
+                cost: cost,
                 icon: recipe["icon"],
                 category:recipe["category"],
                 ingredients: recipe["ingredients"],
@@ -57,6 +61,7 @@ for(var i = 0, len=strings.length; i < len; i++){
         //console.log(new_node.id())
 
         // Add edges for ingredients
+        try{
         for(var k = 0, klen = recipe["ingredients"].length;k < klen; k++){
             ing = recipe["ingredients"][k]
             console.log(ing)
@@ -70,21 +75,30 @@ for(var i = 0, len=strings.length; i < len; i++){
                 }
             )
         }
+        }catch(error){
+            console.error("can't make an edge from ingredient" + ing["name"] + " to " + recipe["name"]);
+            continue;
+        }
 
         //Add Edges for Products
-
-        for(var k = 0, klen = recipe["products"].length;k < klen; k++){
-            var prd = recipe["products"][k]
-            //console.log(new_node)
-            cy.add(
-                {
-                    group: "edges",
-                    data:{
-                    source: recipe["name"],
-                    target: prd["name"],
-                    quantity: recipe["quantity"]}
-                }
-            )
+        if(recipe["products"])
+        try{
+            for(var k = 0, klen = recipe["products"].length;k < klen; k++){
+                var prd = recipe["products"][k]
+                //console.log(new_node)
+                cy.add(
+                    {
+                        group: "edges",
+                        data:{
+                        source: recipe["name"],
+                        target: prd["name"],
+                        quantity: recipe["quantity"]}
+                    }
+                )
+            }
+        }catch(error){
+            console.error("can't make an edge from recipe" + recipe["name"] + " to " + prd["name"]);
+            continue;
         }
     }
     var options = {
