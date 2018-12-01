@@ -25,10 +25,12 @@
 recipes.json
 items.json
 
-/factorio/graphics
-/factorio/prototypes
+/vendor/factorio/graphics
+/vendor/factorio/prototypes
 
 recipes.json
 Modsuite.json
 misc/graphs/*
 gitout
+itemslist
+public/graphs

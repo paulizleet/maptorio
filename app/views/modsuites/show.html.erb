@@ -20,7 +20,10 @@ $(document).ready(function(){
         url: "/modsuites/" + $('#current_id').val()+"/graph",
         method: "get",
         success: function(graph){
-            console.log("graph was got");
+
+            cytoscape.use( 'cytoscape-cose-bilkent'); // register extension
+            console.log("graph was got");  
+            cose = cytoscape-cose-bilkent
 
             var cy = cytoscape({
                 container: document.getElementById("cy"), 
@@ -36,7 +39,11 @@ $(document).ready(function(){
                     }]
                 });
             cy.json(JSON.parse(graph));
-            var layout = cy.layout({name: 'grid'});
+            var layout = cy.layout({name: 'concentric',
+                directed:true,
+                avoidOverlap: true,
+                roots:["iron-ore", "stone", "uranium-ore"],
+                maximalAdjustments: 100});
             layout.run();
             console.log("cytoscape ran")
         }

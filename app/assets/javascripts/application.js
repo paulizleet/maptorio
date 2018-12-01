@@ -18,3 +18,8 @@
 //= require jquery3
 //= require popper
 //= require bootstrap-sprockets
+//= require webpack/js/app
+
+//= require cytoscape
+//= require modsuite
+//= require cytoscape-cose-bilkent
