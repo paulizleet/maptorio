@@ -12,7 +12,7 @@
     "javascript-brunch": "^2.10.0"
   },
   "scripts": {
-    "brunch:start": "yarn run brunch build"
+    "brunch:start": "yarn run brunch watch"
   },
   "dependencies": {
     "cytoscape": "^3.2.21",

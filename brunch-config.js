@@ -6,11 +6,11 @@ module.exports = {
   },
 
   modules: {
-    wrapper: false
+    
   },
 
   files: {
-    javascripts: {joinTo: 'assets/javascripts/brunch/app.js'},
-    stylesheets: {joinTo: 'assets/stylesheets/brunch/app.css'}
+    javascripts: {joinTo: 'javascripts/brunch/app.js'},
+    stylesheets: {joinTo: 'stylesheets/brunch/app.css'}
   }
 }

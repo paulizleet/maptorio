@@ -1,7 +1,3 @@
-import cytoscape from 'cytoscape';
-import coseBilkent from 'cytoscape-cose-bilkent';
-
-cytoscape.use( coseBilkent );
 $(document).ready(function(){
     $.ajax({
         url: "/modsuites/" + $('#current_id').val()+"/graph",
@@ -33,3 +29,6 @@ $(document).ready(function(){
                 maximalAdjustments: 100});
             layout.run();
             console.log("cytoscape ran")
+        }
+    })
+})
