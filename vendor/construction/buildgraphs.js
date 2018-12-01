@@ -1,14 +1,17 @@
 
-var cytoscape = require('cytoscape');
+var cytoscape = require('../../node_modules/cytoscape');
 var fs = require('fs');
 
 var strings = [];
 
-var files = fs.readdirSync("misc/graphs")
+var files = fs.readdirSync("vendor/construction/graphs")
     
 files.forEach(element => {
-    f = fs.readFileSync("misc/graphs/" + element,"utf8");
-    strings.push(f)
+    if(element != "built"){
+        console.log(element);
+        f = fs.readFileSync("vendor/construction/graphs/" + element,"utf8");
+        strings.push(f)
+    }
 });
 
 var cy = cytoscape()
@@ -86,9 +89,11 @@ for(var i = 0, len=strings.length; i < len; i++){
             for(var k = 0, klen = recipe["products"].length;k < klen; k++){
                 var prd = recipe["products"][k]
                 //console.log(new_node)
+                if(prd["name"] == recipe["name"] && recipe["products"].length == 1){continue}
                 cy.add(
-                    {
+                    {   
                         group: "edges",
+                        class: "product",
                         data:{
                         source: recipe["name"],
                         target: prd["name"],

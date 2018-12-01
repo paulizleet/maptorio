@@ -51,11 +51,11 @@ end
         
         # run our lua scripts in shell
 
-        `cd factorio && lua get_items.lua`
+        `cd vendor/factorio && lua get_items.lua`
 
-        `cd factorio && lua get_recipes.lua`
+        `cd vendor/factorio && lua get_recipes.lua`
 
-        f = open("items.json").read
+        f = open("vendor/factorio/items.json").read
 
         j = JSON.parse(f).to_h
 
@@ -75,7 +75,7 @@ end
 
         @modsuite.save
 
-        f = open("recipes.json").read
+        f = open("vendor/factorio/recipes.json").read
         j = JSON.parse(f).to_h
         j.each_pair do |key, list_item|
             #binding.pry if "solid-fuel-from-light-oil" ==list_item["name"]

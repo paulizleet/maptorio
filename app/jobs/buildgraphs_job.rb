@@ -6,18 +6,19 @@ class BuildgraphsJob < ApplicationJob
 
       @ms = Modsuite.all
       @ms.each do |s|
+        next if s == "built"
         i = 0
-            s.graph
-            f = File.new("misc/graphs/#{s.name}.json", "w")
-            mongojs = s.as_json
-            realjs = JSON.pretty_generate(mongojs)
-            f.write(realjs)
-            f.close
-            s.save
+        s.graph
+        f = File.new("vendor/construction/graphs/#{s.name}.json", "w")
+        mongojs = s.as_json
+        realjs = JSON.pretty_generate(mongojs)
+        f.write(realjs)
+        f.close
+        s.save
       end
 
       #run Node in shell
-      `node buildgraphs.js`
+      `node vendor/construction/buildgraphs.js`
 
       @ms.each do |s|
         p s.name
