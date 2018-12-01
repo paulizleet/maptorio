@@ -21,6 +21,8 @@
 .byebug_history
 
 /node_modules
+/vendor/assets/stylesheets/brunch
+/vendor/assets/javascripts/brunch
 
 recipes.json
 items.json

@@ -38,18 +38,18 @@ Rails.application.configure do
   config.npm.enable_watch = Rails.env.development?
 
   # Command to install dependencies
-  config.npm.install = ['npm install']
+  config.npm.install = ['yarn']
 
   # Command to build production assets
-  config.npm.build = ['npm run build']
+  config.npm.build = ['yarn run build']
 
   # Command to start a file watcher
-  config.npm.watch = ['npm run start']
+  config.npm.watch = ['yarn run start']
 
   # The commands are arrays; you may add more commands as needed:
   config.npm.watch = [
-    'npm run webpack:start',
-    'npm run brunch:start'
+    'yarn run webpack:start',
+    'yarn run brunch:start'
   ]
 
   # If 'true', runs 'npm install' on 'rake assets:precompile'. (v1.6.0+)
