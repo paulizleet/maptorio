@@ -17,9 +17,9 @@ module.exports = {
   },*/
 
   files: {
-    //javascripts: {joinTo: {'javascripts/brunch/app.js': /^app/,
-    //                       'javascripts/brunch/vendor.js': /^node_modules/}},
-    javascripts: {joinTo: "javascripts/brunch/app.js"},
+    javascripts: {joinTo: {'javascripts/brunch/app.js': /^app/,
+                           'javascripts/brunch/vendor.js': /^node_modules/}},
+    //javascripts: {joinTo: "javascripts/brunch/app.js"},
     stylesheets: {joinTo: 'stylesheets/brunch/app.css'}
   }
 }

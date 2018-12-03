@@ -1,21 +1,22 @@
 
 var cytoscape = require('../../node_modules/cytoscape');
+var dagre = require('cytoscape-dagre')
 var fs = require('fs');
 
 var strings = [];
 
-var files = fs.readdirSync("vendor/construction/graphs")
+var files = fs.readdirSync("graphs")
     
 files.forEach(element => {
     if(element != "built"){
         console.log(element);
-        f = fs.readFileSync("vendor/construction/graphs/" + element,"utf8");
+        f = fs.readFileSync("graphs/" + element,"utf8");
         strings.push(f)
     }
 });
 
-var cy = cytoscape()
-
+cytoscape.use(dagre)
+var cy = cytoscape({headless: true})
 //console.log(strings)
 
 
@@ -107,7 +108,7 @@ for(var i = 0, len=strings.length; i < len; i++){
         }
     }
     var options = {
-        name:"random"
+        name:"dagre"
     }
     
     var layout = cy.layout(options)
@@ -117,7 +118,7 @@ for(var i = 0, len=strings.length; i < len; i++){
 
     var graph_str = JSON.stringify(cy.json())
 
-    fs.writeFile("public/graphs/graph_"+files[i], graph_str , (err0rs) => {if(err0rs){console.log(err0rs);throw err0rs}})
+    fs.writeFile("../../public/graphs/graph_"+files[i], graph_str , (err0rs) => {if(err0rs){console.log(err0rs);throw err0rs}})
     
     
 }
