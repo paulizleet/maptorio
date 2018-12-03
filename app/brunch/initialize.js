@@ -31,8 +31,9 @@ document.addEventListener('DOMContentLoaded', function() {
             roots:["iron-ore", "stone", "uranium-ore"],
             maximalAdjustments: 100});
         layout.run();
-        console.log("cytoscape ran")}
+        console.log("cytoscape ran")
+        console.log('Initialized app');}
         })
   // do your setup here
-  console.log('Initialized app');
+  
 });
