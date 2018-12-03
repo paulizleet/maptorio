@@ -1,8 +1,13 @@
-var cy = require(cytoscape);
+/*var cy = require(cytoscape);
 var coseBilkent = require(cytoscape-cose-bilkent);
-console.log("memes")
 cy.use( coseBilkent );
-window.onload = function(){
+
+document.addEventListener('DOMContentLoaded', function() {
+
+
+    console.log("memes")
+    console.log("more memes")
+
     $.ajax({
         url: "/modsuites/" + $('#current_id').val()+"/graph",
         method: "get",
@@ -32,4 +37,6 @@ window.onload = function(){
                 maximalAdjustments: 100});
             layout.run();
             console.log("cytoscape ran")}
-            })};
+            })
+        
+};*/

@@ -10,7 +10,7 @@ require "action_controller/railtie"
 require "action_mailer/railtie"
 require "action_view/railtie"
 require "action_cable/engine"
-require "sprockets/railtie"
+# require "sprockets/railtie"
 require "rails/test_unit/railtie"
 
 # Require the gems listed in Gemfile, including any gems
@@ -48,7 +48,6 @@ Rails.application.configure do
 
   # The commands are arrays; you may add more commands as needed:
   config.npm.watch = [
-    'yarn run webpack:start',
     'yarn run brunch:start'
   ]
 
