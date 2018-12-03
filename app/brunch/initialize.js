@@ -1,14 +1,16 @@
-const cy = require('cytoscape');
+const cytoscape = require('cytoscape');
 const coseBilkent = require('cytoscape-cose-bilkent');
-cy.use( coseBilkent );
+cytoscape.use(coseBilkent)
 document.addEventListener('DOMContentLoaded', function() {
-
+  //debugger
   $.ajax({
     url: "/modsuites/" + $('#current_id').val()+"/graph",
     method: "get",
+    error: function(err){
+        console.log(err);
+    },
     success: function(graph){
 
-        cy.use(coseBilkent); // register extension
         console.log("graph was got");  
 
         var cy = cytoscape({
@@ -32,7 +34,9 @@ document.addEventListener('DOMContentLoaded', function() {
             maximalAdjustments: 100});
         layout.run();
         console.log("cytoscape ran")
-        console.log('Initialized app');}
+        console.log('Initialized app');
+    }
+
         })
   // do your setup here
   
