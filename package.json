@@ -19,6 +19,7 @@
     "cytoscape": "^3.2.21",
     "cytoscape-cose-bilkent": "^4.0.0",
     "cytoscape-dagre": "^2.2.2",
+    "cytoscape-klay": "^3.1.2",
     "process": "^0.11.10",
     "request": "^2.88.0",
     "tough-cookie": "^2.5.0"

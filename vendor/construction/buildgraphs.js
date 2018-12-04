@@ -1,45 +1,87 @@
 
-var cytoscape = require('../../node_modules/cytoscape');
-var dagre = require('cytoscape-dagre')
+var cytoscape = require('cytoscape');
+var klay = require('cytoscape-klay')
 var fs = require('fs');
 
 var strings = [];
-
-var files = fs.readdirSync("graphs")
+var files = fs.readdirSync("vendor/construction/graphs")
+//process.exit(1)
     
 files.forEach(element => {
     if(element != "built"){
         console.log(element);
-        f = fs.readFileSync("graphs/" + element,"utf8");
+        f = fs.readFileSync("vendor/construction/graphs/" + element,"utf8");
         strings.push(f)
     }
 });
 
-cytoscape.use(dagre)
-var cy = cytoscape({headless: true})
+cytoscape.use(klay)
+var cy = cytoscape({
+    headless:false,
+    hideLabelsOnViewport: false,
+
+    style: cytoscape.stylesheet()
+
+    .selector('node')
+      .css({
+        'content': 'data(id)',
+        'text-valign': 'center',
+        'color': 'white',
+        'text-outline-width': 2,
+        'background-color': 'data(ncolor)',
+        /*'display': (x = data(ncolor)) => {
+              console.log(x.data('ncolor'));
+              if(x.data('ncolor') == "#00ff00"){
+                return "none";
+              }else{return "element";}                  
+            },*/
+
+        
+        'text-outline-color': '#999'
+        })
+    .selector('edge')
+      .css({
+        'curve-style': 'bezier',
+        'target-arrow-shape': 'triangle',
+        'target-arrow-color': '#ccc',
+        'line-color': '#ccc',
+        'width': 1
+      })
+    .selector(':selected')
+      .css({
+        'background-color': 'black',
+        'line-color': 'black',
+        'target-arrow-color': 'black',
+        'source-arrow-color': 'black'
+      })})
 //console.log(strings)
 
-
+console.log("cy init")
 // For Each Mod Pack
 for(var i = 0, len=strings.length; i < len; i++){
     element = strings[i]
-    console.log(element.slice(0,100));
     js = JSON.parse(element);
 
     // Build nodes for each Item in the modpack
     for(var j = 0, jlen = js["items"].length;j < jlen; j++){
-        item = js["items"][j]
-        console.log(item);
-        var new_item = cy.add({
-            group: "nodes",
-
-            data:{
-                id: item["name"],
-                icon: item["icon"],
-                fgroup: item["subgroup"]
-            }
-        });
+        try{
+            item = js["items"][j]
+            var new_item = cy.add({
+                group: "nodes",
+                data:{
+                    id: "item_"+item["name"],
+                    icon: item["icon"],
+                    fgroup: item["subgroup"],
+                    ncolor: "#ff0000"
+                }
+            });
+            console.log(new_item.data["class"])
+        }catch(error){
+            console.error(error);
+            process.exit(1)
+        }
     }
+    console.log("items")
 
     // Build Nodes and edges for each Recipe in the modpack
     for(var j = 0, jlen = js["recipes"].length;j < jlen; j++){
@@ -51,75 +93,94 @@ for(var i = 0, len=strings.length; i < len; i++){
         var new_node = cy.add([{
             group: "nodes",
             data:{
-                id: recipe["name"],
+                id: "recipe_"+recipe["name"],
                 cost: cost,
                 icon: recipe["icon"],
                 category:recipe["category"],
                 ingredients: recipe["ingredients"],
                 products: recipe["products"],
-                fgroup: recipe["subgroup"]
+                fgroup: recipe["subgroup"],
+                ncolor: "#00ff00"
             }
         }])
 
-        //console.log(new_node.json())
-        //console.log(new_node.id())
-
         // Add edges for ingredients
-        try{
-        for(var k = 0, klen = recipe["ingredients"].length;k < klen; k++){
-            ing = recipe["ingredients"][k]
-            console.log(ing)
-            cy.add(
-                {
-                    group: "edges",
-                    data:{
-                    source: ing["name"],
-                    target: recipe["name"],
-                    quantity: recipe["quantity"]}
+        if(recipe["ingredients"]){
+            for(var k = 0, klen = recipe["ingredients"].length;k < klen; k++){
+                try{
+                    ing = recipe["ingredients"][k]
+                    cy.add([{
+                            group: "edges",
+                            data:{
+                                
+                                source: "item_" + ing["name"],
+                                target: "recipe_" + recipe["name"],
+                                quantity: recipe["quantity"]
+                             }   
+                    }])
+                }catch(error){
+                    console.error("can't make an edge from ingredient " + ing["name"] + " to " + recipe["name"]);
+                    console.error(error)
+
+                    //process.exit(error)
                 }
-            )
+            }
         }
-        }catch(error){
-            console.error("can't make an edge from ingredient" + ing["name"] + " to " + recipe["name"]);
-            continue;
-        }
+
 
         //Add Edges for Products
-        if(recipe["products"])
-        try{
+        if(recipe["products"]){
             for(var k = 0, klen = recipe["products"].length;k < klen; k++){
-                var prd = recipe["products"][k]
-                //console.log(new_node)
-                if(prd["name"] == recipe["name"] && recipe["products"].length == 1){continue}
-                cy.add(
-                    {   
-                        group: "edges",
-                        class: "product",
-                        data:{
-                        source: recipe["name"],
-                        target: prd["name"],
-                        quantity: recipe["quantity"]}
-                    }
-                )
+                try{
+                    var prd = recipe["products"][k]
+                    if(prd["name"] == recipe["name"] && recipe["products"].length == 1){continue}
+                    cy.add(
+                        {   
+                            group: "edges",
+                            data:{
+                            source: "recipe_"+recipe["name"],
+                            target: "item_"+prd["name"],
+                            quantity: recipe["quantity"]}
+                        }
+                    )
+            
+                }catch(error){
+                   console.error("can't make an edge from recipe" + recipe["name"] + " to " + prd["name"]);
+                    console.error(error)
+                    asdf + 1
+                }
+            }   
+         }
+         console.log("recipes")
+    }
+    var options={   
+            name:"klay",
+            fit: false,
+            klay: {
+                direction: "DOWN",
+                edgeRouting:"POLYLINE",
+                borderSpacing: 0,
+                compactComponents: true,
+                compactComponents: true,
+                nodeLayering: "NETWORK_SIMPLEX",
+                nodePlacement: "SIMPLE",
+                thoroughness: 20
             }
-        }catch(error){
-            console.error("can't make an edge from recipe" + recipe["name"] + " to " + prd["name"]);
-            continue;
         }
-    }
-    var options = {
-        name:"dagre"
-    }
-    
-    var layout = cy.layout(options)
-    layout.run()
-    console.log(element.slice(0,100))
-    console.log(files[i])
+    console.log("bout 2 run")
 
+    var layout = cy.layout(options)
+    console.log("running")
+
+    layout.run()
+    //console.log(files[i])
+
+    console.log("ran")
     var graph_str = JSON.stringify(cy.json())
 
-    fs.writeFile("../../public/graphs/graph_"+files[i], graph_str , (err0rs) => {if(err0rs){console.log(err0rs);throw err0rs}})
+    fs.writeFile("public/graphs/graph_"+files[i], graph_str , (err0rs) => {if(err0rs){console.log(err0rs);throw err0rs}})
     
+    return 0
     
 }
 

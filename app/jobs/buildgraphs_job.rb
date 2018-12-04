@@ -16,22 +16,23 @@ class BuildgraphsJob < ApplicationJob
         f.close
         s.save
       end
+      p "Initial graphs created"
 
       #run Node in shell
       `node vendor/construction/buildgraphs.js`
+      p "Graphs built"
 
       @ms.each do |s|
-        p s.name
         f = open("public/graphs/graph_#{s.name}.json")
-        p f
-
         s.graph = f.read
         s.save
         f.close
       end
 
+      puts "graphs saved to db"
+
       
 
-
+    p "Builds are all good"
   end
 end

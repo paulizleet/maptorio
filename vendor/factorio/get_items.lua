@@ -6,19 +6,28 @@ require("dataloader")
 require("util")
 json = require("json")
 print("goin")
--- ls the recipe module directory without writing file extensions
--- echo it to a file
 
-os.execute("ls -1 'prototypes/item' | sed -e 's/\\..*$//'> itemslist")
+-- ls the prototypes directory to get a list of the directories beneath
+os.execute("ls -1 'prototypes' > directorylist")
 
 -- open that file
-local f = io.open("itemslist")
+local f = io.open("directorylist")
 
--- for each recipe module, include it so it gets appended to "data"
+
 for line in f:lines() do
+    -- for each directory, ls it without writing file extensions
+    os.execute("ls -1 'prototypes/"..line.."' | sed -e 's/\\..*$//'> itemslist")
     print(line)
-    require("prototypes.item."..line)
+    -- open that file
+    local g = io.open("itemslist")
+    for item in g:lines() do
+        --for each  item in this file, require it.
+        print(line)
+        require("prototypes."..line.."."..item)
+    end
 end
+
+
 f.close()
 
 -- turn the accursed data object and turn it into something for normal people

@@ -15,7 +15,6 @@ def get_conditional_info(item, condition = false)
         item["ingredients"].each do |r|
             begin
                 #puts "funny ingredients in #{item["name"]}"
-
                 info[:ingredients] << {name: r["name"], quantity: r["amount"]}
             rescue
                 info[:ingredients] << {name: r[0], quantity: r[1]}
@@ -79,74 +78,43 @@ end
         j = JSON.parse(f).to_h
         j.each_pair do |key, list_item|
             #binding.pry if "solid-fuel-from-light-oil" ==list_item["name"]
-            puts list_item["name"]
+
+            @recipe = @modsuite.recipes.new(
+                name: list_item["name"],
+                icon: list_item["icon"],
+                category: list_item["category"],
+                subgroup: list_item["subgroup"],
+                expensive: false
+            )
+
+            if !@recipe.valid?
+                puts "invalid recipe"
+                p @recipe
+                exit
+            end
+            info = []
 
             if list_item["normal"].nil?
-                #binding.pry if list_item["name"] == "programmable-speaker"
-
                 info = get_conditional_info(list_item)
 
-                @recipe = @modsuite.recipes.new(
-                    name: list_item["name"],
-                    icon: list_item["icon"],
-                    energy: info[:energy],
-                    category: list_item["category"],
-                    subgroup: list_item["subgroup"],
-                    expensive: false
-                )
-
-                if !@recipe.valid?
-                    p @recipe
-                    exit
-                end
-
                 @recipe.add_ingredients(info[:ingredients])
-
-
-                @recipe.add_products(info[:products])
-                @recipe.save
-
-
+                @recipe.energy = info[:energy]
+            
             else
 
-                #make recipes for normal difficulty
                 info = get_conditional_info(list_item, "normal")
-
-                @recipe = @modsuite.recipes.new(
-                    name: list_item["name"] + "_normal",
-                    icon: list_item["icon"],
-                    energy: info[:energy],
-                    category: list_item["category"],
-                    subgroup: list_item["subgroup"],
-                    expensive: false
-                )
-
                 @recipe.add_ingredients(info[:ingredients])
-                @recipe.add_products(info[:products])
-                @recipe.save
-
+                @recipe.energy = info[:energy]
 
                 info = get_conditional_info(list_item, "expensive")
-
-                @recipe = @modsuite.recipes.new(
-                    name: list_item["name"] + "_expensive",
-                    icon: list_item["icon"],
-                    energy: info[:energy],
-                    category: list_item["category"],
-                    subgroup: list_item["subgroup"],
-                    expensive: true
-                )
-
-                #make recipes for expensive difficulty
-                @recipe.add_ingredients(info[:ingredients])
-                @recipe.add_products(info[:products])
-                @recipe.save
+                @recipe.add_expensive_ingredients(info[:ingredients])
+                @recipe.energy_expensive = info[:energy]
 
             end
 
+            @recipe.add_products(info[:products])
+
+            @recipe.save
         end
         @modsuite.save
-puts(Item.count)
 BuildgraphsJob.perform_now
-#puts Modsuite.first
-puts(Item.count)
