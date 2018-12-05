@@ -51,6 +51,7 @@ var dagreOptions = {
 
 var klayOptions= {
   name:"klay",
+  nodeDimensionsIncludeLabels: true,
   fit: false,
   klay: {
       direction: "DOWN",
