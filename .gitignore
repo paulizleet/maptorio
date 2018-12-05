@@ -38,5 +38,9 @@ itemslist
 public/graphs
 vendor/factorio/lualib
 vendor/factorio/pl
-vendor/construction/graphs
-public/graphs
+vendor/construction/graphs/*
+public/graphs/*
+.vscode/*
+vendor/construction/graphs/Vanilla.json
+vendor/factorio/fluids.json
+public/graphs/graph_Vanilla.json
