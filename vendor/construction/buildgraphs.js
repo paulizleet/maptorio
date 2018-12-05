@@ -41,7 +41,7 @@ var cy = cytoscape({
         })
     .selector('edge')
       .css({
-        'curve-style': 'bezier',
+        'curve-style': 'haystack',
         'target-arrow-shape': 'triangle',
         'target-arrow-color': '#ccc',
         'line-color': '#ccc',
@@ -160,8 +160,10 @@ for(var i = 0, len=strings.length; i < len; i++){
                 direction: "DOWN",
                 edgeRouting:"POLYLINE",
                 borderSpacing: 0,
+                edgeSpacingFactor: .1,
                 compactComponents: true,
                 compactComponents: true,
+                mergeEdges: true,
                 nodeLayering: "NETWORK_SIMPLEX",
                 nodePlacement: "SIMPLE",
                 thoroughness: 20

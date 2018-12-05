@@ -1,8 +1,9 @@
 const cytoscape = require('cytoscape');
 //const coseBilkent = require('cytoscape-cose-bilkent');
 //const dagre = require('cytoscape-dagre');
+var klay = require('cytoscape-klay')
 
-//cytoscape.use(dagre)
+cytoscape.use(klay)
 
 var ccbOptions = {
     name: 'cose-bilkent',
@@ -48,6 +49,24 @@ var dagreOptions = {
     nodeSep: 1
 }
 
+var klayOptions= {
+  name:"klay",
+  fit: false,
+  klay: {
+      direction: "DOWN",
+      edgeRouting:"POLYLINE",
+      borderSpacing: 0,
+      edgeSpacingFactor: .1,
+      compactComponents: true,
+      compactComponents: true,
+      mergeEdges: true,
+      nodeLayering: "NETWORK_SIMPLEX",
+      nodePlacement: "SIMPLE",
+      thoroughness: 20
+  }
+
+}
+
 var initialization = {
     name: "initialization"
 }
@@ -79,44 +98,44 @@ document.addEventListener('DOMContentLoaded', function() {
         container: document.getElementById("cy"), 
         headless:false,
         hideLabelsOnViewport: false,
-
         style: cytoscape.stylesheet()
-              .selector('node')
-                .css({
-                  'content': 'data(id)',
-                  'text-valign': 'center',
-                  'color': 'white',
-                  'text-outline-width': 2,
-                  'background-color': 'data(ncolor)',
-                  /*'display': (x = data(ncolor)) => {
-                        console.log(x.data('ncolor'));
-                        if(x.data('ncolor') == "#00ff00"){
-                          return "none";
-                        }else{return "element";}                  
-                      },a*/
 
-                  
-                  'text-outline-color': '#999'
-                  })
-              .selector('edge')
-                .css({
-                  'curve-style': 'bezier',
-                  'target-arrow-shape': 'triangle',
-                  'target-arrow-color': '#ccc',
-                  'line-color': '#ccc',
-                  'width': 1
-                })
-              .selector(':selected')
-                .css({
-                  'background-color': 'black',
-                  'line-color': 'black',
-                  'target-arrow-color': 'black',
-                  'source-arrow-color': 'black'
-                })
-            });
+          .selector('node')
+            .css({
+              'content': 'data(id)',
+              'text-valign': 'center',
+              'color': 'white',
+              'text-outline-width': 2,
+              'background-color': 'data(ncolor)',
+              /*'display': (x = data(ncolor)) => {
+                    console.log(x.data('ncolor'));
+                    if(x.data('ncolor') == "#00ff00"){
+                      return "none";
+                    }else{return "element";}                  
+                  },*/
+
+              
+              'text-outline-color': '#999'
+              })
+          .selector('edge')
+            .css({
+              'curve-style': 'haystack',
+              'target-arrow-shape': 'triangle',
+              'target-arrow-color': '#ccc',
+              'line-color': '#ccc',
+              'width': 1
+            })
+          .selector(':selected')
+            .css({
+              'background-color': 'black',
+              'line-color': 'black',
+              'target-arrow-color': 'black',
+              'source-arrow-color': 'black'
+            })
+        });
 
         cy.json(JSON.parse(graph));
-        var layout = cy.layout({name: "grid", padding: 50});
+        var layout = cy.layout(klayOptions);
         layout.run();
         console.log("cytoscape ran")
         console.log('Initialized app');
@@ -125,7 +144,3 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-ls -R prototypes | awk '
-/:$/&&f{s=$0;f=0}
-/:$/&&!f{sub(/:$/,"");s=$0;f=1;next}
-NF&&f{ print s"/"$0 }'
