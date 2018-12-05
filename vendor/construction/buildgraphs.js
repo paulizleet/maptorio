@@ -1,10 +1,73 @@
 
 var cytoscape = require('cytoscape');
+var euler = require('cytoscape-euler')
+var cola = require('cytoscape-cola')
 var klay = require('cytoscape-klay')
 var fs = require('fs');
 
 var strings = [];
 var files = fs.readdirSync("vendor/construction/graphs")
+
+var klayOptions = {   
+    name:"klay",
+    nodeDimensionsIncludeLabels: true,
+    fit: true,
+
+    klay: {
+        direction: "DOWN",
+        edgeRouting:"POLYLINE",
+        borderSpacing: 20,
+        edgeSpacingFactor: .5,
+        compactComponents: true,
+        compactComponents: true,
+        mergeEdges: true,
+        nodeLayering: "NETWORK_SIMPLEX",
+        nodePlacement: "SIMPLE",
+        thoroughness: 20,
+        layoutHierarchy: true,
+        mergeHierarchyCrossingEdges: true
+    }
+}
+
+var eulerOptions= {
+    name: "euler",
+
+    timeStep: 200,
+    animate: false,
+    refresh: 100,
+    maxIterations: 1000,
+    maxSimulationTime: 4000,
+    ungrabifyWhileSimulating: true
+}
+
+var colaOptions={
+    name:"cola",
+    animate: true,
+    refresh:1,
+    maxSimulationTime: 2000,
+    nodeDimensionsIncludeLabels: true,
+    avoidOverlap: true,
+    ungrabifyWhileSimulating: true,
+    convergenceThreshold: 0.01,
+    nodeSpacing: function( node ){ return 50; },
+    stop: function(){               
+
+    }
+}
+
+var breadthFirst = {
+    name: 'breadthfirst',
+
+    fit: true, // whether to fit the viewport to the graph
+    directed: true, // whether the tree is directed downwards (or edges can point in any direction if false)
+    padding: 30, // padding on fit
+    circle: false, // put depths in concentric circles if true, put depths top down if false
+    grid: true,
+    avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
+    nodeDimensionsIncludeLabels: true, // Excludes the label when calculating node bounding boxes for the layout algorithm
+    spacingFactor: 10,
+    roots:  "#item_iron-ore"
+}
 //process.exit(1)
     
 files.forEach(element => {
@@ -72,7 +135,8 @@ for(var i = 0, len=strings.length; i < len; i++){
                     id: "item_"+item["name"],
                     icon: item["icon"],
                     fgroup: item["subgroup"],
-                    ncolor: "#ff0000"
+                    ncolor: "#ff0000",
+                    weight: null
                 }
             });
             console.log(new_item.data["class"])
@@ -115,10 +179,19 @@ for(var i = 0, len=strings.length; i < len; i++){
                             data:{
                                 
                                 source: "item_" + ing["name"],
-                                target: "recipe_" + recipe["name"],
+                                target: "item_" + recipe["name"],
                                 quantity: recipe["quantity"]
                              }   
                     }])
+                    cy.add([{
+                        group: "edges",
+                        data:{
+                            
+                            source: "item_" + ing["name"],
+                            target: "item_" + recipe["name"],
+                            quantity: recipe["quantity"]
+                         }   
+                }])
                 }catch(error){
                     console.error("can't make an edge from ingredient " + ing["name"] + " to " + recipe["name"]);
                     console.error(error)
@@ -129,7 +202,7 @@ for(var i = 0, len=strings.length; i < len; i++){
         }
 
 
-        //Add Edges for Products
+        /*//Add Edges for Products
         if(recipe["products"]){
             for(var k = 0, klen = recipe["products"].length;k < klen; k++){
                 try{
@@ -151,39 +224,40 @@ for(var i = 0, len=strings.length; i < len; i++){
                     asdf + 1
                 }
             }   
-         }
-         console.log("recipes")
+        }*/
     }
-    var options={   
-            name:"klay",
-            fit: false,
-            klay: {
-                direction: "DOWN",
-                edgeRouting:"POLYLINE",
-                borderSpacing: 0,
-                edgeSpacingFactor: .1,
-                compactComponents: true,
-                compactComponents: true,
-                mergeEdges: true,
-                nodeLayering: "NETWORK_SIMPLEX",
-                nodePlacement: "SIMPLE",
-                thoroughness: 20
+
+
+    // Assign a weight of 1 to nodes with no parents, and a big weight to ones with no children
+    cy.nodes().each(function(each){
+         if(each.incomers().length == 0){
+             each.data('weight', 1);
             }
-        }
+    })
+
+    for(var i = 0; ; i++){
+        filtered = cy.nodes().filter(function(e){
+            return e.data('weight') == i;
+        })
+
+        if(filtered.length == 0){break}
+
+        filtered.outgoers().each(function(e){
+            e.data('weight', i+1)
+        })
+    }
+    cy.nodes().sort(function(a, b){
+        return a.data('weight') - b.data('weight');
+    })
+
     console.log("bout 2 run")
 
-    var layout = cy.layout(options)
+    var layout = cy.layout(klayOptions)
     console.log("running")
 
     layout.run()
-    //console.log(files[i])
-
     console.log("ran")
-    var graph_str = JSON.stringify(cy.json())
-
+    var graph_str = JSON.stringify(cy.json())   
     fs.writeFile("public/graphs/graph_"+files[i], graph_str , (err0rs) => {if(err0rs){console.log(err0rs);throw err0rs}})
-    
-    return 0
-    
+    console.log()
 }
-
