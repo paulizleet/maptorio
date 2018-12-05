@@ -1,3 +1,6 @@
+-- Factorio's own utility functions
+
+
 util = {
   table = {}
 }

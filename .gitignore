@@ -36,3 +36,7 @@ misc/graphs/*
 gitout
 itemslist
 public/graphs
+vendor/factorio/lualib
+vendor/factorio/pl
+vendor/construction/graphs
+public/graphs

@@ -27,6 +27,7 @@ for line in f:lines() do
     end
 end
 
+--getting curse words off my page lol
 
 f.close()
 
