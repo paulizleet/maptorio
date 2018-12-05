@@ -48,11 +48,9 @@ end
     @modsuite = Modsuite.new(name: "Vanilla", description: "Factorio recipes without any mods")
     #for each zipfile
         
-        # run our lua scripts in shell
+        # run our lua script in shell
 
-        `cd vendor/factorio && lua get_items.lua`
-
-        `cd vendor/factorio && lua get_recipes.lua`
+        `cd vendor/factorio && lua get_factorio.lua`
 
         f = open("vendor/factorio/items.json").read
 
@@ -71,6 +69,22 @@ end
                 binding.pry
             end
         end
+        f = open("vendor/factorio/fluids.json").read
+
+        j = JSON.parse(f).to_h
+        j.each_pair do |key, list_item|
+            # binding.pry
+             @item = @modsuite.items.new(
+                 name: list_item["name"],
+                 icon: list_item["icon"],
+                 subgroup: list_item["subgroup"]
+             )
+             if @item.valid?
+                 @item.save
+             else
+                 binding.pry
+             end
+         end
 
         @modsuite.save
 

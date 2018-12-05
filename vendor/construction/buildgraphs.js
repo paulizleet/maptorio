@@ -87,6 +87,7 @@ for(var i = 0, len=strings.length; i < len; i++){
     for(var j = 0, jlen = js["recipes"].length;j < jlen; j++){
         recipe = js["recipes"][j]
         cost = "normal";
+
         if(recipe["expensive"] == true){
             cost = "expensive"
         }
@@ -133,7 +134,7 @@ for(var i = 0, len=strings.length; i < len; i++){
             for(var k = 0, klen = recipe["products"].length;k < klen; k++){
                 try{
                     var prd = recipe["products"][k]
-                    if(prd["name"] == recipe["name"] && recipe["products"].length == 1){continue}
+                    //if(prd["name"] == recipe["name"] && recipe["products"].length == 1){continue}
                     cy.add(
                         {   
                             group: "edges",

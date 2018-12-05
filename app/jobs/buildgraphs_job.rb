@@ -1,4 +1,5 @@
 require 'json'
+require 'pry'
 class BuildgraphsJob < ApplicationJob
   queue_as :default
 
@@ -8,7 +9,8 @@ class BuildgraphsJob < ApplicationJob
       @ms.each do |s|
         next if s == "built"
         i = 0
-        s.graph
+        s.graph = ""
+        s.save
         f = File.new("vendor/construction/graphs/#{s.name}.json", "w")
         mongojs = s.as_json
         realjs = JSON.pretty_generate(mongojs)
