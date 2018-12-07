@@ -44,3 +44,5 @@ public/graphs/*
 vendor/construction/graphs/Vanilla.json
 vendor/factorio/fluids.json
 public/graphs/graph_Vanilla.json
+yarn-error.log
+yarn.lock
