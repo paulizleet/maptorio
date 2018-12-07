@@ -4,9 +4,19 @@ var euler = require('cytoscape-euler')
 var cola = require('cytoscape-cola')
 var klay = require('cytoscape-klay')
 var fs = require('fs');
-
 var strings = [];
 var files = fs.readdirSync("vendor/construction/graphs")
+
+var eulerOptions= {
+    name: "euler",
+
+    timeStep: 200,
+    animate: false,
+    refresh: 100,
+    maxIterations: 1000,
+    maxSimulationTime: 4000,
+    ungrabifyWhileSimulating: true
+}
 
 var klayOptions = {   
     name:"klay",
@@ -26,20 +36,13 @@ var klayOptions = {
         thoroughness: 20,
         layoutHierarchy: true,
         mergeHierarchyCrossingEdges: true
+    },
+    stop: function(){
+        cy.remove("#ref")
+        var graph_str = JSON.stringify(cy.json())   
+        fs.writeFile("public/graphs/graph_"+files[i], graph_str , (err0rs) => {if(err0rs){console.log(err0rs);throw err0rs}})  
     }
 }
-
-var eulerOptions= {
-    name: "euler",
-
-    timeStep: 200,
-    animate: false,
-    refresh: 100,
-    maxIterations: 1000,
-    maxSimulationTime: 4000,
-    ungrabifyWhileSimulating: true
-}
-
 var colaOptions={
     name:"cola",
     animate: true,
@@ -50,8 +53,40 @@ var colaOptions={
     ungrabifyWhileSimulating: true,
     convergenceThreshold: 0.01,
     nodeSpacing: function( node ){ return 50; },
-    stop: function(){               
+    stop: function(){
 
+        var randomInt = function(max){
+            var posneg = 0
+            if(Math.random > .5){
+                posneg = -1;
+            }else{
+                posneg = 1
+            }
+            return Math.floor(Math.random() * Math.floor(max)) * posneg;
+        }
+
+        console.log(cy.nodes().boundingBox())
+        if(cy.$("#ref").data("force") > 0){
+            var strength = cy.$("#ref").data("force")
+            console.log("running " + (strength-1))
+            cy.nodes().each(function(each){
+                //"kick" each node a little bit to knock the graph out of a local minima
+                var current = each.position()
+                each.position({
+                    x: current["x"] + randomInt(strength),
+                    y: current["y"] + randomInt(strength)
+                })
+            
+            })
+            cy.$("#ref").data("force", strength - 1)
+            var layout = cy.layout(colaOptions)        
+            layout.run()
+        }else{
+            cy.remove("#ref")
+            console.log("ran")
+            var graph_str = JSON.stringify(cy.json())   
+            fs.writeFile("public/graphs/graph_"+files[i], graph_str , (err0rs) => {if(err0rs){console.log(err0rs);throw err0rs}})               
+        }
     }
 }
 
@@ -79,6 +114,8 @@ files.forEach(element => {
 });
 
 cytoscape.use(klay)
+
+
 var cy = cytoscape({
     headless:false,
     hideLabelsOnViewport: false,
@@ -119,6 +156,18 @@ var cy = cytoscape({
       })})
 //console.log(strings)
 
+//Reference node for the kicking algorithm to refer to
+//Will be removed before saving
+cy.add({
+    group: "nodes",
+    data:{
+        id: "ref",
+        force: 3,
+        area: null
+    }
+})
+
+cy.$("#ref").style({display: "none"})
 console.log("cy init")
 // For Each Mod Pack
 for(var i = 0, len=strings.length; i < len; i++){
@@ -251,13 +300,9 @@ for(var i = 0, len=strings.length; i < len; i++){
     })
 
     console.log("bout 2 run")
-
     var layout = cy.layout(klayOptions)
     console.log("running")
 
     layout.run()
-    console.log("ran")
-    var graph_str = JSON.stringify(cy.json())   
-    fs.writeFile("public/graphs/graph_"+files[i], graph_str , (err0rs) => {if(err0rs){console.log(err0rs);throw err0rs}})
-    console.log()
+
 }

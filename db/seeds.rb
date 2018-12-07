@@ -42,15 +42,16 @@ def get_conditional_info(item, condition = false)
     return info
 end
 
-
+#make sure the factorio base repo is installed
+`cd vendor/factorio && git clone https://github.com/wube/factorio-data.git`
 
 #for each suite of mods
-    @modsuite = Modsuite.new(name: "Vanilla", description: "Factorio recipes without any mods")
+    @modsuite = Modsuite.new(name: "base", description: "Factorio recipes without any mods")
     #for each zipfile
         
         # run our lua script in shell
 
-        `cd vendor/factorio && lua get_factorio.lua`
+        `lua vendor/factorio/get_factorio.lua`
 
         f = open("vendor/factorio/items.json").read
 
