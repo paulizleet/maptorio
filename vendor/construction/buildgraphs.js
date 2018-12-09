@@ -1,22 +1,10 @@
 
 var cytoscape = require('cytoscape');
-var euler = require('cytoscape-euler')
-var cola = require('cytoscape-cola')
+
 var klay = require('cytoscape-klay')
 var fs = require('fs');
 var strings = [];
 var files = fs.readdirSync("vendor/construction/graphs")
-
-var eulerOptions= {
-    name: "euler",
-
-    timeStep: 200,
-    animate: false,
-    refresh: 100,
-    maxIterations: 1000,
-    maxSimulationTime: 4000,
-    ungrabifyWhileSimulating: true
-}
 
 var klayOptions = {   
     name:"klay",
@@ -43,68 +31,7 @@ var klayOptions = {
         fs.writeFile("public/graphs/graph_"+files[i], graph_str , (err0rs) => {if(err0rs){console.log(err0rs);throw err0rs}})  
     }
 }
-var colaOptions={
-    name:"cola",
-    animate: true,
-    refresh:1,
-    maxSimulationTime: 2000,
-    nodeDimensionsIncludeLabels: true,
-    avoidOverlap: true,
-    ungrabifyWhileSimulating: true,
-    convergenceThreshold: 0.01,
-    nodeSpacing: function( node ){ return 50; },
-    stop: function(){
-
-        var randomInt = function(max){
-            var posneg = 0
-            if(Math.random > .5){
-                posneg = -1;
-            }else{
-                posneg = 1
-            }
-            return Math.floor(Math.random() * Math.floor(max)) * posneg;
-        }
-
-        console.log(cy.nodes().boundingBox())
-        if(cy.$("#ref").data("force") > 0){
-            var strength = cy.$("#ref").data("force")
-            console.log("running " + (strength-1))
-            cy.nodes().each(function(each){
-                //"kick" each node a little bit to knock the graph out of a local minima
-                var current = each.position()
-                each.position({
-                    x: current["x"] + randomInt(strength),
-                    y: current["y"] + randomInt(strength)
-                })
-            
-            })
-            cy.$("#ref").data("force", strength - 1)
-            var layout = cy.layout(colaOptions)        
-            layout.run()
-        }else{
-            cy.remove("#ref")
-            console.log("ran")
-            var graph_str = JSON.stringify(cy.json())   
-            fs.writeFile("public/graphs/graph_"+files[i], graph_str , (err0rs) => {if(err0rs){console.log(err0rs);throw err0rs}})               
-        }
-    }
-}
-
-var breadthFirst = {
-    name: 'breadthfirst',
-
-    fit: true, // whether to fit the viewport to the graph
-    directed: true, // whether the tree is directed downwards (or edges can point in any direction if false)
-    padding: 30, // padding on fit
-    circle: false, // put depths in concentric circles if true, put depths top down if false
-    grid: true,
-    avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
-    nodeDimensionsIncludeLabels: true, // Excludes the label when calculating node bounding boxes for the layout algorithm
-    spacingFactor: 10,
-    roots:  "#item_iron-ore"
-}
-//process.exit(1)
-    
+   
 files.forEach(element => {
     if(element != "built"){
         console.log(element);
@@ -226,23 +153,23 @@ for(var i = 0, len=strings.length; i < len; i++){
                     cy.add([{
                             group: "edges",
                             data:{
-                                
+                                id: "item_" + ing["name"] + "_to_" + "recipe_" + recipe["name"],
                                 source: "item_" + ing["name"],
-                                target: "item_" + recipe["name"],
+                                target: "recipe_" + recipe["name"],
                                 quantity: recipe["quantity"]
                              }   
                     }])
-                    cy.add([{
+                    /*cy.add([{
                         group: "edges",
                         data:{
                             
                             source: "item_" + ing["name"],
-                            target: "item_" + recipe["name"],
+                            target: "recipe" + recipe["name"],
                             quantity: recipe["quantity"]
-                         }   
-                }])
+                         } */  
+                
                 }catch(error){
-                    console.error("can't make an edge from ingredient " + ing["name"] + " to " + recipe["name"]);
+                    console.error("can't make an edge from ingredient " + ing["name"] + "_to_" + recipe["name"]);
                     console.error(error)
 
                     //process.exit(error)
@@ -251,7 +178,7 @@ for(var i = 0, len=strings.length; i < len; i++){
         }
 
 
-        /*//Add Edges for Products
+        //Add Edges for Products
         if(recipe["products"]){
             for(var k = 0, klen = recipe["products"].length;k < klen; k++){
                 try{
@@ -261,11 +188,21 @@ for(var i = 0, len=strings.length; i < len; i++){
                         {   
                             group: "edges",
                             data:{
+                            id: "recipe_"+recipe["name"] + " to " + "item_"+prd["name"],
                             source: "recipe_"+recipe["name"],
                             target: "item_"+prd["name"],
                             quantity: recipe["quantity"]}
                         }
                     )
+                    /*cy.add(
+                        {   
+                            group: "edges",
+                            data:{
+                            source: "recipe_"+recipe["name"],
+                            target: "recipe"+prd["name"],
+                            quantity: recipe["quantity"]}
+                        }
+                    )*/
             
                 }catch(error){
                    console.error("can't make an edge from recipe" + recipe["name"] + " to " + prd["name"]);
@@ -273,7 +210,7 @@ for(var i = 0, len=strings.length; i < len; i++){
                     asdf + 1
                 }
             }   
-        }*/
+        }
     }
 
 
