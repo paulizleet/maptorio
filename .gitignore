@@ -47,4 +47,5 @@ public/graphs/graph_Vanilla.json
 yarn-error.log
 yarn.lock
 vendor/factorio/factorio-data/
+public/graphics
 

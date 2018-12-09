@@ -16,13 +16,12 @@ var klayOptions = {
         edgeRouting:"POLYLINE",
         borderSpacing: 20,
         edgeSpacingFactor: .5,
-        compactComponents: true,
-        compactComponents: true,
+        compactComponents: false,
         mergeEdges: true,
         nodeLayering: "NETWORK_SIMPLEX",
         nodePlacement: "SIMPLE",
         thoroughness: 20,
-        layoutHierarchy: true,
+        layoutHierarchy: false,
         mergeHierarchyCrossingEdges: true
     },
     stop: function(){
@@ -131,6 +130,8 @@ for(var i = 0, len=strings.length; i < len; i++){
         if(recipe["expensive"] == true){
             cost = "expensive"
         }
+
+        //Recipe Node
         var new_node = cy.add([{
             group: "nodes",
             data:{

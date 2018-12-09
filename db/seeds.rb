@@ -59,9 +59,16 @@ end
 
         j.each_pair do |key, list_item|
            # binding.pry
+           icon=nil
+           begin
+                icon = list_item["icon"].gsub(/(__base__)/, "")
+           rescue
+                icon = list_item["icons"]["icon"].gsub(/(__base__)/, "")
+           end
+
             @item = @modsuite.items.new(
                 name: list_item["name"],
-                icon: list_item["icon"],
+                icon:   icon,
                 subgroup: list_item["subgroup"]
             )
             if @item.valid?
@@ -72,12 +79,21 @@ end
         end
         f = open("vendor/factorio/fluids.json").read
 
+        icon=nil
+        begin
+             icon = list_item["icon"].gsub(/(__base__)/, "")
+        rescue
+            binding.pry
+
+             icon = "vendor/happyface.jpg"
+        end
+
         j = JSON.parse(f).to_h
         j.each_pair do |key, list_item|
             # binding.pry
              @item = @modsuite.items.new(
                  name: list_item["name"],
-                 icon: list_item["icon"],
+                 icon: icon,
                  subgroup: list_item["subgroup"]
              )
              if @item.valid?
@@ -93,10 +109,17 @@ end
         j = JSON.parse(f).to_h
         j.each_pair do |key, list_item|
             #binding.pry if "solid-fuel-from-light-oil" ==list_item["name"]
+            icon=nil
+            begin
+                 icon = list_item["icon"].gsub(/(__base__)/, "")
+            rescue
+                 icon = "vendor/happyface.jpg"
+            end
+ 
 
             @recipe = @modsuite.recipes.new(
                 name: list_item["name"],
-                icon: list_item["icon"],
+                icon: icon,
                 category: list_item["category"],
                 subgroup: list_item["subgroup"],
                 expensive: false
