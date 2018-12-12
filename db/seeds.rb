@@ -2,6 +2,8 @@ require "pry"
 #require "language/lua"
 require "json"
 require 'zip'
+require_relative "lua_stuff"
+#require 'FileUtils'
 Zip.on_exists_proc = true
 # This file should contain all the record creation needed to seed the database with its default values.
 # The data can then be loaded with the rails db:seed command (or created alongside the database with db:setup).
@@ -47,138 +49,62 @@ def get_conditional_info(item, condition = false)
     return info
 end
 
-def build_lua(pack)
-    lua_start = '
-function errorHandler (error)
-    print(error)
-    return
-end
-
-function require_this(path)
---why
-    require(path)
-    print("got "..path)
-end 
 
 
-print(package.path)
--- Rewritten after a Dev suggested I use their github repo
-package.path = package.path .. ";vendor/factorio/factorio-data/core/lualib/?.lua"
-package.path = package.path .. ";vendor/factorio/factorio-data/mod/?.lua"
-
---package.path = package.path .. ";vendor/factorio/factorio-data/base/?.lua"
-
-defines = {}
-defines.difficulty_settings = {}
-defines.difficulty_settings.recipe_difficulty = {}
-defines.difficulty_settings.recipe_difficulty.normal = 1
-defines.difficulty_settings.recipe_difficulty.expensive = 2
-defines.difficulty_settings.technology_difficulty = {}
-defines.difficulty_settings.technology_difficulty.normal = 1
-defines.difficulty_settings.technology_difficulty.expensive = 2
-defines.direction = {}
-defines.direction.north = 0
-defines.direction.east = 1
-defines.direction.south = 2
-defines.direction.west = 3
-function log(x) end
-
-
--- require factorio dataloader and libs
-require("dataloader")
-json = require("vendor.factorio.json")
-'
-
-lua_end =   '
-print(data.raw["item"])
-
-jsonified = json.encode(data.raw["item"])
-local f = io.open("vendor/factorio/items.json", "w")
-f:write(jsonified, "\n")
-f.close()
-
-jsonified = json.encode(data.raw["fluid"])
-local f = io.open("vendor/factorio/fluids.json", "w")
-f:write(jsonified, "\n")
-f.close()
-
-
-jsonified = json.encode(data.raw["recipe"])
-local f = io.open("vendor/factorio/recipes.json", "w")
-f:write(jsonified, "\n")
-f.close()'
-
-
-    lua_middle = ""
-    lua_middle += "package.path = package.path .. ';vendor/factorio/factorio-data/mod/#{pack}/?'\n"
-
-    req = /("require\('")/
-
-    zips = Dir.entries("vendor/factorio/modpacks/#{pack}")
-    zips.each do |z|
-        next if z == '.' || z == ".." || z == "base"
-        #unzip each zipfile
-        zexp = Regexp.new(z[0..-5])
-        Zip::File.open("vendor/factorio/modpacks/#{pack}/#{z}") do |f|
-            f.each do |e|
-                newname = "#{e.name.gsub(zexp, z[0..z.index("_")-1])}"
-                e.extract("vendor/factorio/factorio-data/mod/#{pack}/#{newname}")
-            end
-            file = File.open("vendor/factorio/factorio-data/mod/#{pack}/#{z[0..z.index("_")-1]}/data.lua")
-
-            file.each_line do |l|
-                next if !l.match(/--/).nil? 
-
-                if [/items/,/fluids/, /entities/, /recipe/].all?{|r| l.match(r).nil?}
-                    next
-                end
-                    
-    
-                splits = l.strip.split("(")
-                p splits
-                begin
-                    lua_middle += "xpcall(#{splits[0][splits[0].index("require")..splits[0].length]+"_this"},'#{pack}.#{z[0..z.index("_")-1]}.#{splits[1][1..splits[1].length-2].gsub(/\"/, "'")}, errorHandler)\n"
-                rescue
-                    p l
-                end
-
-
-            end
-
-        end
+def move_graphics(pack)
+    #puts Dir.pwd
+    begin
+        Dir.mkdir("public/graphics/")
+    rescue
+        nil
     end
 
-    # build our lua file
-    f = File.new("vendor/factorio/get_factorio.lua", 'w')
-    f.write("#{lua_start}#{lua_middle}#{lua_end}")
-    f.close
-    # run our lua script in shell
-    `lua vendor/factorio/get_factorio.lua >> errors`
-    exit
+    begin
+        Dir.mkdir("public/graphics/#{pack}")
+    rescue
+        nil
+    end
+
+    zips = Dir.entries("vendor/factorio/factorio-data/mod/#{pack}")
+    zips.each do |z|
+        next if z == '.' || z == ".." 
+        #puts z
+
+        begin
+            Dir.mkdir("public/graphics/#{pack}/#{z}")
+            Dir.mkdir("public/graphics/#{pack}/#{z}/graphics")
+
+        rescue
+            nil
+        end
+        FileUtils.copy_entry("vendor/factorio/factorio-data/mod/#{pack}/#{z}/graphics/","public/graphics/#{pack}/#{z}/graphics")
+    end
+
 end
+
 
 
 #make sure the factorio base repo is installed
 puts "fatal means success!"
 `cd vendor/factorio && git clone https://github.com/wube/factorio-data.git`
 
-
-
-
-
-
-
-
 #get list of folders in factorio/modpacks
 
 
 packs = Dir.entries("vendor/factorio/modpacks")
 packs.each do |pack| #pack dir
-    `rm -rf vendor/factorio/factorio/data/mod`
-
+    #`rm -rf vendor/factorio/factorio-data/mod`
+    
     next if pack == '.' || pack == ".." || pack == "base"
     
-    build_lua(pack)
+
+    mods = extract_mods(pack)
+
+    ordered_mods = get_mod_order(pack, mods)
+
+
+    build_lua(pack, ordered_mods)
+    move_graphics(pack)
     
     f = open("vendor/factorio/items.json").read
 
@@ -190,9 +116,10 @@ packs.each do |pack| #pack dir
         # binding.pry
         icon=nil
         begin
-            icon = list_item["icon"].gsub(/(__base__)/, "")
+            icon = "#{pack}/" + list_item["icon"]
         rescue
-            icon = list_item["icons"]["icon"].gsub(/(__base__)/, "")
+            binding.pry
+            icon = "#{pack}/" + list_item["icons"][0]["icon"]
         end
 
         @item = @modsuite.items.new(
@@ -212,7 +139,7 @@ packs.each do |pack| #pack dir
     begin
             icon = list_item["icon"].gsub(/(__base__)/, "")
     rescue
-        binding.pry
+        #binding.pry
 
             icon = "vendor/happyface.jpg"
     end

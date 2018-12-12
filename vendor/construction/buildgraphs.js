@@ -42,65 +42,74 @@ files.forEach(element => {
 cytoscape.use(klay)
 
 
-var cy = cytoscape({
-    headless:false,
-    hideLabelsOnViewport: false,
 
-    style: cytoscape.stylesheet()
-
-    .selector('node')
-      .css({
-        'content': 'data(id)',
-        'text-valign': 'center',
-        'color': 'white',
-        'text-outline-width': 2,
-        'background-color': 'data(ncolor)',
-        /*'display': (x = data(ncolor)) => {
-              console.log(x.data('ncolor'));
-              if(x.data('ncolor') == "#00ff00"){
-                return "none";
-              }else{return "element";}                  
-            },*/
-
-        
-        'text-outline-color': '#999'
-        })
-    .selector('edge')
-      .css({
-        'curve-style': 'haystack',
-        'target-arrow-shape': 'triangle',
-        'target-arrow-color': '#ccc',
-        'line-color': '#ccc',
-        'width': 1
-      })
-    .selector(':selected')
-      .css({
-        'background-color': 'black',
-        'line-color': 'black',
-        'target-arrow-color': 'black',
-        'source-arrow-color': 'black'
-      })})
-//console.log(strings)
-
-//Reference node for the kicking algorithm to refer to
-//Will be removed before saving
-cy.add({
-    group: "nodes",
-    data:{
-        id: "ref",
-        force: 3,
-        area: null
-    }
-})
-
-cy.$("#ref").style({display: "none"})
 console.log("cy init")
 // For Each Mod Pack
 for(var i = 0, len=strings.length; i < len; i++){
+
+
+
+    var cy = cytoscape({
+        headless:false,
+        hideLabelsOnViewport: false,
+    
+        style: cytoscape.stylesheet()
+    
+        .selector('node')
+          .css({
+            'content': 'data(id)',
+            'text-valign': 'center',
+            'color': 'white',
+            'text-outline-width': 2,
+            'background-color': 'data(ncolor)',
+            /*'display': (x = data(ncolor)) => {
+                  console.log(x.data('ncolor'));
+                  if(x.data('ncolor') == "#00ff00"){
+                    return "none";
+                  }else{return "element";}                  
+                },*/
+    
+            
+            'text-outline-color': '#999'
+            })
+        .selector('edge')
+          .css({
+            'curve-style': 'haystack',
+            'target-arrow-shape': 'triangle',
+            'target-arrow-color': '#ccc',
+            'line-color': '#ccc',
+            'width': 1
+          })
+        .selector(':selected')
+          .css({
+            'background-color': 'black',
+            'line-color': 'black',
+            'target-arrow-color': 'black',
+            'source-arrow-color': 'black'
+          })})
+    //console.log(strings)
+    
+    //Reference node for the kicking algorithm to refer to
+    //Will be removed before saving
+    cy.add({
+        group: "nodes",
+        data:{
+            id: "ref",
+            force: 3,
+            area: null
+        }
+    })
+    cy.$("#ref").style({display: "none"})
+
+    
     element = strings[i]
     js = JSON.parse(element);
 
     // Build nodes for each Item in the modpack
+    console.log("----------------------------------------------------------------------")
+    console.log("Building Items")
+    console.log("----------------------------------------------------------------------")
+
     for(var j = 0, jlen = js["items"].length;j < jlen; j++){
         try{
             item = js["items"][j]
@@ -123,6 +132,11 @@ for(var i = 0, len=strings.length; i < len; i++){
     console.log("items")
 
     // Build Nodes and edges for each Recipe in the modpack
+    try{
+
+    console.log("----------------------------------------------------------------------")
+    console.log("Building Recipes")
+    console.log("----------------------------------------------------------------------")
     for(var j = 0, jlen = js["recipes"].length;j < jlen; j++){
         recipe = js["recipes"][j]
         cost = "normal";
@@ -132,6 +146,7 @@ for(var i = 0, len=strings.length; i < len; i++){
         }
 
         //Recipe Node
+        console.log("recipe")
         var new_node = cy.add([{
             group: "nodes",
             data:{
@@ -146,6 +161,8 @@ for(var i = 0, len=strings.length; i < len; i++){
             }
         }])
 
+
+        console.log("ingredients")
         // Add edges for ingredients
         if(recipe["ingredients"]){
             for(var k = 0, klen = recipe["ingredients"].length;k < klen; k++){
@@ -179,6 +196,7 @@ for(var i = 0, len=strings.length; i < len; i++){
         }
 
 
+        console.log("products")
         //Add Edges for Products
         if(recipe["products"]){
             for(var k = 0, klen = recipe["products"].length;k < klen; k++){
@@ -213,8 +231,12 @@ for(var i = 0, len=strings.length; i < len; i++){
             }   
         }
     }
-
-
+    }catch(error){
+        console.log("error")
+        console.log(js)
+        console.error(error)
+    }
+    console.log("Done with basic graph")
     // Assign a weight of 1 to nodes with no parents, and a big weight to ones with no children
     cy.nodes().each(function(each){
          if(each.incomers().length == 0){
@@ -222,6 +244,7 @@ for(var i = 0, len=strings.length; i < len; i++){
             }
     })
 
+    console.log("sorting...")
     for(var i = 0; ; i++){
         filtered = cy.nodes().filter(function(e){
             return e.data('weight') == i;
@@ -236,11 +259,12 @@ for(var i = 0, len=strings.length; i < len; i++){
     cy.nodes().sort(function(a, b){
         return a.data('weight') - b.data('weight');
     })
-
+    console.log("...done sorting")
     console.log("bout 2 run")
     var layout = cy.layout(klayOptions)
     console.log("running")
 
     layout.run()
+    cy.destroy()
 
 }

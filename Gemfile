@@ -69,3 +69,5 @@ gem 'bootstrap'
 gem 'friendly_id', '~> 5.2.0'
 
 gem 'npm-pipeline-rails'
+
+gem 'rubyzip'
