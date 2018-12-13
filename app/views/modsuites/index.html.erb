@@ -2,6 +2,7 @@
 <table class='table'>
     <tbody>
     <% @suites.each do |s| %>
+    <% next if s.name != "base" %>
         <tr>
         <td><%=link_to(s.name, s)%></td>
         <td><%= s.description %></td>
