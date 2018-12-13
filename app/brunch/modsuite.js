@@ -52,7 +52,7 @@ function modsuite(){
           style: cytoscape.stylesheet()
             .selector('node')
               .css({
-                'label': 'data(id)',
+                'label': 'data(name)',
                 'shape': 'rectangle',
                 'text-valign': 'bottom',
                 'color': 'white',

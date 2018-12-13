@@ -57,7 +57,7 @@ for(var i = 0, len=strings.length; i < len; i++){
     
         .selector('node')
           .css({
-            'content': 'data(id)',
+            'content': 'data(name)',
             'text-valign': 'center',
             'color': 'white',
             'text-outline-width': 2,
@@ -117,6 +117,7 @@ for(var i = 0, len=strings.length; i < len; i++){
                 group: "nodes",
                 data:{
                     id: "item_"+item["name"],
+                    name: item["local_name"],
                     icon: item["icon"],
                     fgroup: item["subgroup"],
                     ncolor: "#ff0000",
@@ -151,6 +152,7 @@ for(var i = 0, len=strings.length; i < len; i++){
             group: "nodes",
             data:{
                 id: "recipe_"+recipe["name"],
+                name: recipe["local_name"],
                 cost: cost,
                 icon: recipe["icon"],
                 category:recipe["category"],
