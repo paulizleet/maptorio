@@ -49,3 +49,10 @@ yarn.lock
 vendor/factorio/factorio-data/
 public/graphics
 
+vendor/factorio/modpacks
+vendor/factorio/clidebugger.lua
+vendor/factorio/factorio-data/
+vendor/factorio/get_factorio.lua
+vendor/factorio/get_items.lua
+vendor/factorio/clidebugger.lua
+errors
