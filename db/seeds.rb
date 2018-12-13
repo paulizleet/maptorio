@@ -13,18 +13,18 @@ Zip.on_exists_proc = true
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
+#We only want new errors!
+`rm errors`
 
-
-
-def get_conditional_info(item, condition = false)
+def get_conditional_info(item, locale_item, condition = false)
     info = {ingredients: [], products: [], energy: nil}
     if condition == false
         item["ingredients"].each do |r|
             begin
                 #puts "funny ingredients in #{item["name"]}"
-                info[:ingredients] << {name: r["name"], quantity: r["amount"]}
+                info[:ingredients] << {local_name: locale_item[r["name"]],name: r["name"], quantity: r["amount"]}
             rescue
-                info[:ingredients] << {name: r[0], quantity: r[1]}
+                info[:ingredients] << {local_name: locale_item[r[0]],name: r[0], quantity: r[1]}
             end
         end
 
@@ -36,14 +36,14 @@ def get_conditional_info(item, condition = false)
         else
             item["results"].each do |r|
                 if r["name"].nil?
-                    info[:products] << {name: r[0], quantity: r[1]}
+                    info[:products] << {local_name: locale_item[r["name"]],name: r[0], quantity: r[1]}
                 else
-                    info[:products] << {name: r["name"], quantity: r["amount"]}
+                    info[:products] << {local_name: locale_item[r[0]],name: r["name"], quantity: r["amount"]}
                 end
             end
         end
     else
-        return get_conditional_info(item[condition])
+        return get_conditional_info(item[condition], locale_item)
     end
 
     return info
@@ -64,8 +64,13 @@ def move_graphics(pack)
     rescue
         nil
     end
+    if pack == "base"
+        FileUtils.copy_entry("vendor/factorio/factorio-data/base/graphics/","public/graphics/base/graphics")
+        return
+    end
 
     zips = Dir.entries("vendor/factorio/factorio-data/mod/#{pack}")
+
     zips.each do |z|
         next if z == '.' || z == ".." 
         #puts z
@@ -77,56 +82,76 @@ def move_graphics(pack)
         rescue
             nil
         end
+
         FileUtils.copy_entry("vendor/factorio/factorio-data/mod/#{pack}/#{z}/graphics/","public/graphics/#{pack}/#{z}/graphics")
     end
 
 end
 
+def build_modpack(pack, desc = "factorio mods :D")
+
+    item_names = {}
+    recipe_names = {}
+    if pack == "base"
+        english = open("vendor/factorio/factorio-data/base/locale/en/base.cfg").read
+        #binding.pry
+        item_time = false
+        recipe_time = false
+        sps = english.split("\n")
+        
+        i=-1
+        while i < sps.length
+            i+=1
+            e = sps[i]
+            item_time = true if e == "[item-name]" || e == "[fluid-name]" || e == "[entity-name]"
+            recipe_time = true if e == "[recipe-name]"
+            if e == ""
+                item_time = false
+                recipe_time = false
+            end
+           # binding.pry if e == ""
+            next if !item_time && !recipe_time
+
+            if item_time
+                s = e.split("=")
+                item_names.merge!({s[0]=> s[1]})
+            end
+            if recipe_time
+                s = e.split("=")
+                recipe_names.merge!({s[0]=> s[1]})
+            end
+        end
+        #binding.pry
+
+    end
 
 
-#make sure the factorio base repo is installed
-puts "fatal means success!"
-`cd vendor/factorio && git clone https://github.com/wube/factorio-data.git`
-
-#get list of folders in factorio/modpacks
 
 
-packs = Dir.entries("vendor/factorio/modpacks")
-packs.each do |pack| #pack dir
-    #`rm -rf vendor/factorio/factorio-data/mod`
-    
-    next if pack == '.' || pack == ".." || pack == "base"
-    
-
-    mods = extract_mods(pack)
-
-    ordered_mods = get_mod_order(pack, mods)
-
-
-    build_lua(pack, ordered_mods)
-    move_graphics(pack)
-    
     f = open("vendor/factorio/items.json").read
 
     j = JSON.parse(f).to_h
     
-    @modsuite = Modsuite.new(name: pack, description: "Factorio mods :D")
+    @modsuite = Modsuite.new(name: pack, description: desc)
 
     j.each_pair do |key, list_item|
         # binding.pry
         icon=nil
         begin
-            icon = "#{pack}/" + list_item["icon"]
+            icon = "/graphics/#{pack}/" + list_item["icon"].gsub(/(__base__)/, "")
         rescue
-            binding.pry
-            icon = "#{pack}/" + list_item["icons"][0]["icon"]
+            icon = "/graphics/#{pack}/" + list_item["icons"][0]["icon"]
         end
 
         @item = @modsuite.items.new(
             name: list_item["name"],
+            local_name:  pack == "base" ? item_names[list_item["name"]] : "fancy_" + list_item["name"],
             icon:   icon,
             subgroup: list_item["subgroup"]
         )
+
+        #binding.pry
+
         if @item.valid?
             @item.save
         else
@@ -137,11 +162,9 @@ packs.each do |pack| #pack dir
 
     icon=nil
     begin
-            icon = list_item["icon"].gsub(/(__base__)/, "")
+         icon = "/#{pack}"+list_item["icon"].gsub(/(__base__)/, "")
     rescue
-        #binding.pry
-
-            icon = "vendor/happyface.jpg"
+         icon = "/graphics/happyface.jpg"
     end
 
     j = JSON.parse(f).to_h
@@ -149,8 +172,10 @@ packs.each do |pack| #pack dir
         # binding.pry
             @item = @modsuite.items.new(
                 name: list_item["name"],
+                local_name: pack == "base" ? item_names[list_item["name"]] : "fancy_" + list_item["name"],
                 icon: icon,
-                subgroup: list_item["subgroup"]
+                subgroup: list_item["subgroup"],
+
             )
             if @item.valid?
                 @item.save
@@ -175,6 +200,7 @@ packs.each do |pack| #pack dir
 
         @recipe = @modsuite.recipes.new(
             name: list_item["name"],
+            local_name: pack == "base" ? recipe_names[list_item["name"]] : "fancy_" + list_item["name"],
             icon: icon,
             category: list_item["category"],
             subgroup: list_item["subgroup"],
@@ -189,18 +215,18 @@ packs.each do |pack| #pack dir
         info = []
 
         if list_item["normal"].nil?
-            info = get_conditional_info(list_item)
+            info = get_conditional_info(list_item, item_names)
 
             @recipe.add_ingredients(info[:ingredients])
             @recipe.energy = info[:energy]
         
         else
 
-            info = get_conditional_info(list_item, "normal")
+            info = get_conditional_info(list_item,item_names, "normal")
             @recipe.add_ingredients(info[:ingredients])
             @recipe.energy = info[:energy]
 
-            info = get_conditional_info(list_item, "expensive")
+            info = get_conditional_info(list_item, item_names, "expensive")
             @recipe.add_expensive_ingredients(info[:ingredients])
             @recipe.energy_expensive = info[:energy]
 
@@ -211,6 +237,42 @@ packs.each do |pack| #pack dir
         @recipe.save
     end
     @modsuite.save
+    puts "Added #{pack}"
+end
+
+def get_base()
+    build_lua("vendor/factorio/factorio-data", "base", true)
+    build_modpack("base")
+    move_graphics("base")
+    exit
+end
+
+
+
+#make sure the factorio base repo is installed
+puts "fatal means success!"
+`cd vendor/factorio && git clone https://github.com/wube/factorio-data.git`
+
+
+#Get base mod
+get_base()
+
+#get list of folders in factorio/modpacks
+packs = Dir.entries("vendor/factorio/modpacks")
+packs.each do |pack| #pack dir
+    #`rm -rf vendor/factorio/factorio-data/mod`
+    
+    next if pack == '.' || pack == ".." || pack == "base"
+    
+
+    mods = extract_mods(pack)
+
+    ordered_mods = get_mod_order(pack, mods)
+
+
+    build_lua(pack, ordered_mods)
+    move_graphics(pack)
+    build_modpack(pack)
 
     #clean up our mess
 end

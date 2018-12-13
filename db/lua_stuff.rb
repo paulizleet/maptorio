@@ -1,4 +1,4 @@
-def build_lua(pack, mods)
+def build_lua(pack, mods, is_base = false)
         lua_start = '
     function errorHandler (error)
         print(error)
@@ -8,33 +8,18 @@ def build_lua(pack, mods)
     function require_this(path)
     --why
         require(path)
-        print("got"..path)
     end
 
-    function deepcopy(orig)
-        local orig_type = type(orig)
-        local copy
-        if orig_type == "table" then
-            copy = {}
-            for orig_key, orig_value in next, orig, nil do
-                copy[deepcopy(orig_key)] = deepcopy(orig_value)
-            end
-            setmetatable(copy, deepcopy(getmetatable(orig)))
-        else -- number, string, boolean, etc
-            copy = orig
-        end
-        return copy
-    end
-
+    package.path = package.path ..";./?.lua;./?" 
 
     local ppath = package.path
 
     -- Rewritten after a Dev suggested I use their github repo
     package.path = package.path .. ";vendor/factorio/factorio-data/core/lualib/?.lua"
     package.path = package.path .. ";vendor/factorio/factorio-data/core/?.lua"
+    package.path = package.path .. ";vendor/factorio/factorio-data/base/?.lua"
     package.path = package.path .. ";vendor/factorio/factorio-data/?"
 
-    package.path = package.path .. ";vendor/factorio/factorio-data/?.lua"
     package.path = package.path .. ";vendor/factorio/factorio-data/?.lua"
 
     --package.path = package.path .. ";vendor/factorio/factorio-data/base/?.lua"
@@ -62,15 +47,14 @@ def build_lua(pack, mods)
     require("dataloader")
     require("core.data")
 
+    mm = require("mm")
     serpent = require("vendor.factorio.serpent")
     json = require("vendor.factorio.json")
-    angelsmods = {}
-    bobsmods = {}
+    require("vendor.factorio.clidebugger")
+
     '
 
     lua_end =   '
-    print(data.raw["item"])
-
     jsonified = json.encode(data.raw["item"])
     local f = io.open("vendor/factorio/items.json", "w")
     f:write(jsonified, "\n")
@@ -87,23 +71,21 @@ def build_lua(pack, mods)
     f:write(jsonified, "\n")
     f.close()'
 
-
-        lua_middle = "package.path = package.path .. ';vendor/factorio/factorio-data/mod/#{pack}/?.lua;./?.lua;./?'\n\nprint(package.path)\n"     
+        lua_middle = ""
 
         req = /("require\('")/
 
-        luas = ["settings.lua", "settings-updates.lua", "settings-final-fixes.lua", "data.lua"]#, "data-updates.lua", "data-final-fixes.lua"]
+        luas = ["settings.lua", "settings-updates.lua", "settings-final-fixes.lua", "data.lua", "data-updates.lua", "data-final-fixes.lua"]
         luas.each do |l|
-            if l == "data.lua"
-                #lua_middle += "package.path = ppath .. ';vendor/factorio/factorio-data/core/lualib/?.lua;vendor/factorio/factorio-data/base/?.lua'\nxpcall(require_this,errorHandler,'data')\n"
-            elsif l == "data-updates.lua\n"
-                #lua_middle += "package.path = ppath .. ';vendor/factorio/factorio-data/core/lualib/?.lua;vendor/factorio/factorio-data/base/?.lua'\nxpcall(require_this,errorHandler,'data-updates')\n"
+            if is_base
+                lua_middle += "xpcall(require_this,errorHandler,'base.#{l[0..-5]}')\n"
+                next
             end
 
             mods.each do |m|
-                if File.exist?("vendor/factorio/factorio-data/mod/#{pack}/#{m}/#{l}")
-                    lua_middle += "package.path = ppath .. ';vendor/factorio/factorio-data/mod/#{pack}/#{m}/?.lua'\nxpcall(require_this,errorHandler,'#{l[0..-5]}')\n"
-                end
+                #if File.exist?("vendor/factorio/factorio-data/mod/#{pack}/#{m}/#{l}")
+                    lua_middle += "package.path = ppath .. ';vendor/factorio/factorio-data/mod/#{pack}/?.lua'\nxpcall(require_this,errorHandler,'#{m}.#{l[0..-5]}')\n"
+                #end
             end
 
 #             lua_middle += "
@@ -126,6 +108,7 @@ def build_lua(pack, mods)
 
         #binding.pry
         `lua vendor/factorio/get_factorio.lua >> errors`
+        exit if pack=="base"
 end
 
 def extract_mods(pack)
@@ -175,7 +158,6 @@ def sort_mods(mods)
     while true
         swapped = false
         i=0
-        keys.each {|k| puts "#{k} - #{mods[k]}"}
         while i < keys.length-1 do
             i+=1
             next if mods[keys[i]].length == 1
@@ -188,9 +170,7 @@ def sort_mods(mods)
                 end
                 if a > i
                     keys.insert(i-k, kk)
-                    keys.each {|kasdf| p kasdf}
                     keys.delete_at(keys.rindex(kk))
-                    keys.each {|kasdf| p kasdf}
                     swapped = true
                     k+=1
                 end
@@ -215,9 +195,6 @@ def get_mod_order(pack, mods)
     end
 
     infos = sort_mods(mods_deps)
-    infos.each do |k|
-        puts "#{k} - #{mods_deps[k]}"
-    end
 
     infos
 
