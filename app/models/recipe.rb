@@ -5,6 +5,7 @@ class Recipe
 
 
     field :name, type: String
+    field :local_name, type: String
     field :expensive, type: Boolean
     field :energy
     field :energy_expensive
@@ -25,7 +26,7 @@ class Recipe
     def add_ingredients(items)
         
         items.each do |i|
-            @ingredient = self.ingredients.new(name: i[:name], quantity: i[:quantity])
+            @ingredient = self.ingredients.new(name: i[:name],local_name: i[:local_name], quantity: i[:quantity])
             @ingredient.save
         end
         self.save
@@ -34,7 +35,7 @@ class Recipe
     def add_expensive_ingredients(items)
         
         items.each do |i|
-            @ingredient = self.expensive_ingredients.new(name: i[:name], quantity: i[:quantity])
+            @ingredient = self.expensive_ingredients.new(name: i[:name],local_name: i[:local_name], quantity: i[:quantity])
             @ingredient.save
         end
         self.save
@@ -43,7 +44,7 @@ class Recipe
 
     def add_products(prd)
         prd.each do |i|
-            @product = self.products.new(name: i[:name], quantity: i[:quantity])
+            @product = self.products.new(name: i[:name],local_name: i[:local_name],quantity: i[:quantity])
             @product.save
         end
         self.save
