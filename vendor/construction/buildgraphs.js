@@ -30,63 +30,63 @@ var klayOptions = {
         fs.writeFile("public/graphs/graph_"+files[i], graph_str , (err0rs) => {if(err0rs){console.log(err0rs);throw err0rs}})  
     }
 }
-   
+cytoscape.use(klay)
+
+function getCytoscape(){
+    return cytoscape({
+         headless:false,
+         hideLabelsOnViewport: false,
+     
+         style: cytoscape.stylesheet()
+     
+         .selector('node')
+           .css({
+             'content': 'data(name)',
+             'text-valign': 'center',
+             'color': 'white',
+             'text-outline-width': 2,
+             'background-color': 'data(ncolor)',
+             /*'display': (x = data(ncolor)) => {
+                   console.log(x.data('ncolor'));
+                   if(x.data('ncolor') == "#00ff00"){
+                     return "none";
+                   }else{return "element";}                  
+                 },*/
+     
+             
+             'text-outline-color': '#999'
+             })
+         .selector('edge')
+           .css({
+             'curve-style': 'haystack',
+             'target-arrow-shape': 'triangle',
+             'target-arrow-color': '#ccc',
+             'line-color': '#ccc',
+             'width': 1
+           })
+         .selector(':selected')
+           .css({
+             'background-color': 'black',
+             'line-color': 'black',
+             'target-arrow-color': 'black',
+             'source-arrow-color': 'black'
+           })})
+ }
+ 
 files.forEach(element => {
     if(element != "built"){
         console.log(element);
         f = fs.readFileSync("vendor/construction/graphs/" + element,"utf8");
-        strings.push(f)
+        strings.push(JSON.parse(f))
     }
 });
-
-cytoscape.use(klay)
-
 
 
 console.log("cy init")
 // For Each Mod Pack
 for(var i = 0, len=strings.length; i < len; i++){
 
-
-
-    var cy = cytoscape({
-        headless:false,
-        hideLabelsOnViewport: false,
-    
-        style: cytoscape.stylesheet()
-    
-        .selector('node')
-          .css({
-            'content': 'data(name)',
-            'text-valign': 'center',
-            'color': 'white',
-            'text-outline-width': 2,
-            'background-color': 'data(ncolor)',
-            /*'display': (x = data(ncolor)) => {
-                  console.log(x.data('ncolor'));
-                  if(x.data('ncolor') == "#00ff00"){
-                    return "none";
-                  }else{return "element";}                  
-                },*/
-    
-            
-            'text-outline-color': '#999'
-            })
-        .selector('edge')
-          .css({
-            'curve-style': 'haystack',
-            'target-arrow-shape': 'triangle',
-            'target-arrow-color': '#ccc',
-            'line-color': '#ccc',
-            'width': 1
-          })
-        .selector(':selected')
-          .css({
-            'background-color': 'black',
-            'line-color': 'black',
-            'target-arrow-color': 'black',
-            'source-arrow-color': 'black'
-          })})
+    var cy = getCytoscape()
     //console.log(strings)
     
     //Reference node for the kicking algorithm to refer to
@@ -102,14 +102,13 @@ for(var i = 0, len=strings.length; i < len; i++){
     cy.$("#ref").style({display: "none"})
 
     
-    element = strings[i]
-    js = JSON.parse(element);
+    js = strings[i]
 
     // Build nodes for each Item in the modpack
     console.log("----------------------------------------------------------------------")
     console.log("Building Items")
     console.log("----------------------------------------------------------------------")
-
+    console.log(js["items"])
     for(var j = 0, jlen = js["items"].length;j < jlen; j++){
         try{
             item = js["items"][j]
@@ -167,10 +166,13 @@ for(var i = 0, len=strings.length; i < len; i++){
         console.log("ingredients")
         // Add edges for ingredients
         if(recipe["ingredients"]){
-            for(var k = 0, klen = recipe["ingredients"].length;k < klen; k++){
+            for(var k = 0, klen = recipe["ingredients"].length;k < klen; k++){ 
                 try{
                     ing = recipe["ingredients"][k]
+                    console.log(ing["name"])
+
                     cy.add([{
+
                             group: "edges",
                             data:{
                                 id: "item_" + ing["name"] + "_to_" + "recipe_" + recipe["name"],

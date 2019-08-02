@@ -2,17 +2,18 @@ def build_lua(pack, mods, is_base = false)
         lua_start = '
     function errorHandler (error)
         print(error)
-        return
+        return false
     end
 
     function require_this(path)
     --why
         require(path)
+        print("got "..path)
+        return true
     end
 
     package.path = package.path ..";./?.lua;./?" 
 
-    local ppath = package.path
 
     -- Rewritten after a Dev suggested I use their github repo
     package.path = package.path .. ";vendor/factorio/factorio-data/core/lualib/?.lua"
@@ -23,9 +24,9 @@ def build_lua(pack, mods, is_base = false)
     package.path = package.path .. ";vendor/factorio/factorio-data/?.lua"
 
     --package.path = package.path .. ";vendor/factorio/factorio-data/base/?.lua"
+    local ppath = package.path
 
     settings = {}
-
 
     defines = {}
     defines.difficulty_settings = {}
@@ -45,16 +46,25 @@ def build_lua(pack, mods, is_base = false)
 
     -- require factorio dataloader and libs
     require("dataloader")
-    require("core.data")
-
+ 
     mm = require("mm")
     serpent = require("vendor.factorio.serpent")
     json = require("vendor.factorio.json")
-    require("vendor.factorio.clidebugger")
+    --require("vendor.factorio.clidebugger")
 
     '
+    lua_pt2 = ""
+    Dir.entries("vendor/factorio/factorio-data/core/lualib").each do |d|
+        next if d == '.' || d == ".." 
+
+        lua_pt2 += "xpcall(require_this, errorHandler, \"vendor.factorio.factorio-data.core.lualib.#{d[0..-5]}\")\n"
+    end
+    lua_start += lua_pt2
 
     lua_end =   '
+
+
+
     jsonified = json.encode(data.raw["item"])
     local f = io.open("vendor/factorio/items.json", "w")
     f:write(jsonified, "\n")
@@ -77,38 +87,67 @@ def build_lua(pack, mods, is_base = false)
 
         luas = ["settings.lua", "settings-updates.lua", "settings-final-fixes.lua", "data.lua", "data-updates.lua", "data-final-fixes.lua"]
         luas.each do |l|
+            lua_middle = ""
+            if l == "data.lua"
+                lua_middle += '
+                require("core.data")
+                require("base.data")'
+            end
             if is_base
-                lua_middle += "xpcall(require_this,errorHandler,'base.#{l[0..-5]}')\n"
                 next
             end
 
+            filename = "#{l[0..-5]}".split("-").join()+"_t"
+            table_string = "local #{filename} = {"
             mods.each do |m|
-                #if File.exist?("vendor/factorio/factorio-data/mod/#{pack}/#{m}/#{l}")
-                    lua_middle += "package.path = ppath .. ';vendor/factorio/factorio-data/mod/#{pack}/?.lua'\nxpcall(require_this,errorHandler,'#{m}.#{l[0..-5]}')\n"
-                #end
+                if File.exist?("vendor/factorio/factorio-data/mod/#{pack}/#{m}/#{l}") == true
+                    table_string += "{path = \";vendor/factorio/factorio-data/mod/#{pack}/?.lua;vendor/factorio/factorio-data/mod/#{pack}/#{m}/?.lua\", req = '#{m}.#{l[0..-5]}'},"
+                end
             end
+            next if table_string[-1] == "{"
+            lua_middle+= "
+                #{table_string}}
 
-#             lua_middle += "
-#    local f = io.open('vendor/factorio/data_#{l}.json', 'w')
-#    f:write(serpent.block(data.raw), '\\n')
-#    f.close()
-#    "
+                local a = 0
+                while a < 5 do
 
-            #if l == "settings.lua"
-            #   lua_middle += "settings = deepcopy(data)\ndata = {}"
-            #end
+                    local i = 1
+                    for i, check in ipairs(#{filename}) do
+                        --local check = #{filename}[i]
+                        package.path = ppath .. check['path']
+                        local pass = xpcall(require_this, errorHandler, check['req'])
+                        if pass == true then
+                            --table.remove(#{filename}, i)
+                        else
+                            if i == ##{filename} then
+                                --i=1
+                            else
+                                --i=i+1
+                            end
+                        end
+                    end
+                    a=a+1
+                end
+                if a == 5 then
+                    print('skipped some in #{filename}')
+                else
+                    print('#{filename}')
+                end
+            "
+            
+            
+            lua_start += lua_middle
         end
         
 
         # build our lua file
         f = File.new("vendor/factorio/get_factorio.lua", 'w')
-        f.write("#{lua_start}#{lua_middle}#{lua_end}")
+        f.write("#{lua_start}#{lua_end}")
         f.close
-        # run our lua script in shell
 
-        #binding.pry
+        # run our lua script in shell
         `lua vendor/factorio/get_factorio.lua >> errors`
-        exit if pack=="base"
+        #exit if pack=="base"
 end
 
 def extract_mods(pack)
@@ -179,6 +218,9 @@ def sort_mods(mods)
         end
         break if swapped == false
     end
+
+   # keys.each {|k| puts "#{k} - #{mods[k]}"}
+    
     keys
 
 

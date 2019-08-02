@@ -8,6 +8,8 @@ class BuildgraphsJob < ApplicationJob
       @ms = Modsuite.all
       @ms.each do |s|
         next if s == "built"
+        next if s.name = "AngelBobs"
+
         i = 0
         s.graph = ""
         s.save

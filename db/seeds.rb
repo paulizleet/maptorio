@@ -53,6 +53,7 @@ end
 
 def move_graphics(pack)
     #puts Dir.pwd
+    return
     begin
         Dir.mkdir("public/graphics/")
     rescue
@@ -94,7 +95,6 @@ def build_modpack(pack, desc = "factorio mods :D")
     recipe_names = {}
     if pack == "base"
         english = open("vendor/factorio/factorio-data/base/locale/en/base.cfg").read
-        #binding.pry
         item_time = false
         recipe_time = false
         sps = english.split("\n")
@@ -109,7 +109,6 @@ def build_modpack(pack, desc = "factorio mods :D")
                 item_time = false
                 recipe_time = false
             end
-           # binding.pry if e == ""
             next if !item_time && !recipe_time
 
             if item_time
@@ -121,7 +120,6 @@ def build_modpack(pack, desc = "factorio mods :D")
                 recipe_names.merge!({s[0]=> s[1]})
             end
         end
-        #binding.pry
 
     end
 
@@ -244,13 +242,12 @@ def get_base()
     build_lua("vendor/factorio/factorio-data", "base", true)
     build_modpack("base")
     move_graphics("base")
-    exit
 end
 
 
 
 #make sure the factorio base repo is installed
-puts "fatal means success!"
+puts "fatal means success!  Official factorio git is already installed."
 `cd vendor/factorio && git clone https://github.com/wube/factorio-data.git`
 
 
@@ -262,7 +259,7 @@ packs = Dir.entries("vendor/factorio/modpacks")
 packs.each do |pack| #pack dir
     #`rm -rf vendor/factorio/factorio-data/mod`
     
-    next if pack == '.' || pack == ".." || pack == "base"
+    next if pack == '.' || pack == ".." || pack != "base"
     
 
     mods = extract_mods(pack)
@@ -273,7 +270,8 @@ packs.each do |pack| #pack dir
     build_lua(pack, ordered_mods)
     move_graphics(pack)
     build_modpack(pack)
-
+    #exit
     #clean up our mess
 end
-BuildgraphsJob.perform_now
+
+#BuildgraphsJob.perform_now
