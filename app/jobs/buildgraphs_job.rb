@@ -1,5 +1,6 @@
 require 'json'
 require 'pry'
+#getting rid of bad words in commit messages lol
 class BuildgraphsJob < ApplicationJob
   queue_as :default
 

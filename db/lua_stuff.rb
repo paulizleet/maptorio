@@ -1,3 +1,5 @@
+#getting rid of bad words in commit messages lol
+
 def build_lua(pack, mods, is_base = false)
         lua_start = '
     function errorHandler (error)

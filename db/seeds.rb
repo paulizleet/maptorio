@@ -1,3 +1,5 @@
+#getting rid of bad words in commit messages lol
+
 require "pry"
 #require "language/lua"
 require "json"

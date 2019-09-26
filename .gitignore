@@ -56,3 +56,4 @@ vendor/factorio/get_factorio.lua
 vendor/factorio/get_items.lua
 vendor/factorio/clidebugger.lua
 errors
+luarocks-3.1.3

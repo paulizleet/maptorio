@@ -1,4 +1,4 @@
-
+//remoivng bad words
 var cytoscape = require('cytoscape');
 
 var klay = require('cytoscape-klay')

@@ -1,45 +1,32 @@
-
+    
+    local cli = require("vendor.factorio.clidebugger")
     function errorHandler (error)
         print(error)
-        return
+        return false
     end
 
     function require_this(path)
     --why
         require(path)
-        print("got"..path)
+        print("got "..path)
+        return true
     end
 
-    function deepcopy(orig)
-        local orig_type = type(orig)
-        local copy
-        if orig_type == "table" then
-            copy = {}
-            for orig_key, orig_value in next, orig, nil do
-                copy[deepcopy(orig_key)] = deepcopy(orig_value)
-            end
-            setmetatable(copy, deepcopy(getmetatable(orig)))
-        else -- number, string, boolean, etc
-            copy = orig
-        end
-        return copy
-    end
+    package.path = package.path ..";./?.lua;./?" 
 
-
-    local ppath = package.path
 
     -- Rewritten after a Dev suggested I use their github repo
     package.path = package.path .. ";vendor/factorio/factorio-data/core/lualib/?.lua"
     package.path = package.path .. ";vendor/factorio/factorio-data/core/?.lua"
+    package.path = package.path .. ";vendor/factorio/factorio-data/base/?.lua"
     package.path = package.path .. ";vendor/factorio/factorio-data/?"
 
     package.path = package.path .. ";vendor/factorio/factorio-data/?.lua"
-    package.path = package.path .. ";vendor/factorio/factorio-data/?.lua"
 
     --package.path = package.path .. ";vendor/factorio/factorio-data/base/?.lua"
+    local ppath = package.path
 
     settings = {}
-
 
     defines = {}
     defines.difficulty_settings = {}
@@ -59,103 +46,33 @@
 
     -- require factorio dataloader and libs
     require("dataloader")
-    require("core.data")
-
+ 
+    mm = require("mm")
     serpent = require("vendor.factorio.serpent")
     json = require("vendor.factorio.json")
-    angelsmods = {}
-    bobsmods = {}
-    package.path = package.path .. ';vendor/factorio/factorio-data/mod/AngelBobs/?.lua;./?.lua;./?'
+    --require("vendor.factorio.clidebugger")
+    xpcall(require_this, errorHandler, "vendor.factorio.factorio-data.core.lualib.util")
 
-print(package.path)
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobenemies/?.lua'
-xpcall(require_this,errorHandler,'settings')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobinserters/?.lua'
-xpcall(require_this,errorHandler,'settings')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobtech/?.lua'
-xpcall(require_this,errorHandler,'settings')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobores/?.lua'
-xpcall(require_this,errorHandler,'settings')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobplates/?.lua'
-xpcall(require_this,errorHandler,'settings')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobassembly/?.lua'
-xpcall(require_this,errorHandler,'settings')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobvehicleequipment/?.lua'
-xpcall(require_this,errorHandler,'settings')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/angelsrefining/?.lua'
-xpcall(require_this,errorHandler,'settings')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/angelspetrochem/?.lua'
-xpcall(require_this,errorHandler,'settings')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/angelsaddons-warehouses/?.lua'
-xpcall(require_this,errorHandler,'settings')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/angelsaddons-oresilos/?.lua'
-xpcall(require_this,errorHandler,'settings')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobmodules/?.lua'
-xpcall(require_this,errorHandler,'settings')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobmining/?.lua'
-xpcall(require_this,errorHandler,'settings')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/boblogistics/?.lua'
-xpcall(require_this,errorHandler,'settings')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobwarfare/?.lua'
-xpcall(require_this,errorHandler,'settings')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/angelsindustries/?.lua'
-xpcall(require_this,errorHandler,'settings')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/angelsinfiniteores/?.lua'
-xpcall(require_this,errorHandler,'settings')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/angelsaddons-petrotrain/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobenemies/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobinserters/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/boblibrary/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobtech/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobores/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobplates/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobassembly/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobvehicleequipment/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobrevamp/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/angelsrefining/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/angelspetrochem/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/angelsaddons-pressuretanks/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/angelsaddons-warehouses/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/angelsaddons-oresilos/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobgreenhouse/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobpower/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobelectronics/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobmodules/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobmining/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/boblogistics/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/angelssmelting/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/bobwarfare/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/angelsbioprocessing/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/angelsindustries/?.lua'
-xpcall(require_this,errorHandler,'data')
-package.path = ppath .. ';vendor/factorio/factorio-data/mod/AngelBobs/angelsinfiniteores/?.lua'
-xpcall(require_this,errorHandler,'data')
+    xpcall(require_this, errorHandler, "vendor.factorio.factorio-data.core.lualib.dataloader")
 
-    print(data.raw["item"])
+xpcall(require_this, errorHandler, "vendor.factorio.factorio-data.core.lualib.noise")
+xpcall(require_this, errorHandler, "vendor.factorio.factorio-data.core.lualib.story")
+xpcall(require_this, errorHandler, "vendor.factorio.factorio-data.core.lualib.builder")
+xpcall(require_this, errorHandler, "vendor.factorio.factorio-data.core.lualib.camera")
+xpcall(require_this, errorHandler, "vendor.factorio.factorio-data.core.lualib.circuit-connector-generated-definitions")
+xpcall(require_this, errorHandler, "vendor.factorio.factorio-data.core.lualib.mod-gui")
+xpcall(require_this, errorHandler, "vendor.factorio.factorio-data.core.lualib.flying_tags")
+xpcall(require_this, errorHandler, "vendor.factorio.factorio-data.core.lualib.autoplace_utils")
+xpcall(require_this, errorHandler, "vendor.factorio.factorio-data.core.lualib.inspect")
+xpcall(require_this, errorHandler, "vendor.factorio.factorio-data.core.lualib.math3d")
+xpcall(require_this, errorHandler, "vendor.factorio.factorio-data.core.lualib.production-score")
+xpcall(require_this, errorHandler, "vendor.factorio.factorio-data.core.lualib.story-skeleton")
+xpcall(require_this, errorHandler, "vendor.factorio.factorio-data.core.lualib.circuit-connector-sprites")
+xpcall(require_this, errorHandler, "vendor.factorio.factorio-data.core.lualib.silo-script")
+xpcall(require_this, errorHandler, "vendor.factorio.factorio-data.core.lualib.bonus-gui-ordering")
+xpcall(require_this, errorHandler, "vendor.factorio.factorio-data.base.data")
+pause("fckcuk")
+
 
     jsonified = json.encode(data.raw["item"])
     local f = io.open("vendor/factorio/items.json", "w")
